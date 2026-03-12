@@ -1,0 +1,2644 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0d0d0d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>FORGE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange: #C85008;
+  --orange-bright: #E06010;
+  --orange-dim: #7A3005;
+  --amber: #B07000;
+  --amber-light: #FDF5DC;
+  --green: #1E7048;
+  --blue: #1A407A;
+  --bg: #0d0d0d;
+  --bg2: #141414;
+  --bg3: #1a1a1a;
+  --bg4: #222222;
+  --line: #2a2a2a;
+  --text: #e8e8e8;
+  --muted: #888;
+  --faint: #444;
+  --white: #fff;
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-body: 'Barlow', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html { font-size: 16px; background: var(--bg); color: var(--text); }
+
+body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  background: var(--bg);
+}
+
+/* ── NOISE TEXTURE ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.6;
+}
+
+/* ── NAV ── */
+#nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(13,13,13,0.96);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--line);
+  display: flex;
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 0 8px;
+  background: none;
+  border: none;
+  color: var(--faint);
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.15s;
+  position: relative;
+}
+
+.nav-btn.active { color: var(--orange); }
+.nav-btn.active::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 20%; right: 20%;
+  height: 2px;
+  background: var(--orange);
+}
+
+.nav-icon { font-size: 18px; line-height: 1; }
+
+/* ── SCREENS ── */
+.screen {
+  display: none;
+  min-height: 100dvh;
+  padding-bottom: calc(68px + env(safe-area-inset-bottom));
+  position: relative;
+  z-index: 1;
+}
+.screen.active { display: block; }
+
+/* ── HEADER ── */
+.screen-header {
+  padding: 52px 20px 20px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.screen-label {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 4px;
+}
+
+.screen-title {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--white);
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+/* ── HOME SCREEN ── */
+#home { background: var(--bg); }
+
+.home-hero {
+  padding: 60px 20px 0;
+  text-align: center;
+  position: relative;
+}
+
+.forge-wordmark {
+  font-family: var(--font-display);
+  font-size: clamp(80px, 22vw, 120px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: var(--white);
+  line-height: 0.9;
+  text-transform: uppercase;
+  position: relative;
+}
+
+.forge-wordmark span {
+  color: var(--orange);
+}
+
+.forge-tagline {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 12px;
+}
+
+.phase-cards {
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.phase-card {
+  background: var(--bg3);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+  overflow: hidden;
+}
+
+.phase-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+}
+
+.phase-card.p1::before { background: var(--orange); }
+.phase-card.p2::before { background: var(--blue); }
+.phase-card.p3::before { background: var(--green); }
+
+.phase-card:active { background: var(--bg4); }
+
+.phase-num {
+  font-family: var(--font-display);
+  font-size: 52px;
+  font-weight: 900;
+  line-height: 1;
+  min-width: 52px;
+}
+
+.phase-card.p1 .phase-num { color: var(--orange); }
+.phase-card.p2 .phase-num { color: var(--blue); }
+.phase-card.p3 .phase-num { color: var(--green); }
+
+.phase-info { flex: 1 }
+
+.phase-name {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--white);
+}
+
+.phase-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+.phase-arrow {
+  color: var(--faint);
+  font-size: 20px;
+}
+
+/* Quick stats strip */
+.stats-strip {
+  margin: 0 20px 20px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  overflow: hidden;
+}
+
+.stat-item {
+  padding: 14px 12px;
+  text-align: center;
+  border-right: 1px solid var(--line);
+}
+.stat-item:last-child { border-right: none; }
+
+.stat-val {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--orange);
+  display: block;
+}
+
+.stat-label {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* ── PROGRAMME SCREEN ── */
+.bloc-section {
+  margin: 0;
+}
+
+.bloc-banner {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 85px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.bloc-banner.bloc0 { background: rgba(176,112,0,0.15); }
+.bloc-banner.bloc1 { background: rgba(200,80,8,0.12); }
+.bloc-banner.bloc2 { background: rgba(26,64,122,0.15); }
+.bloc-banner.bloc3 { background: rgba(30,112,72,0.15); }
+
+.bloc-pill {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 1px;
+}
+
+.bloc0 .bloc-pill { background: var(--amber); color: #000; }
+.bloc1 .bloc-pill { background: var(--orange); color: #fff; }
+.bloc2 .bloc-pill { background: var(--blue); color: #fff; }
+.bloc3 .bloc-pill { background: var(--green); color: #fff; }
+
+.bloc-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex: 1;
+}
+
+.bloc-toggle { color: var(--faint); font-size: 14px; transition: transform 0.2s; }
+.bloc-toggle.open { transform: rotate(180deg); }
+
+.bloc-content { overflow: hidden; }
+.bloc-content.collapsed { display: none; }
+
+.week-group {
+  border-bottom: 1px solid var(--line);
+}
+
+.week-header {
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  background: var(--bg2);
+}
+
+.week-num {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 900;
+  color: var(--orange);
+  min-width: 36px;
+  line-height: 1;
+}
+
+.week-info { flex: 1 }
+
+.week-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--white);
+}
+
+.week-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.seance-list { background: var(--bg); }
+.seance-list.collapsed { display: none; }
+
+.seance-row {
+  padding: 14px 20px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.seance-row:active { background: var(--bg3); }
+
+.seance-id {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--orange);
+  min-width: 36px;
+  font-weight: 500;
+}
+
+.seance-name {
+  flex: 1;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.seance-tag {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 1px;
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+.tag-force { background: rgba(200,80,8,0.2); color: var(--orange); }
+.tag-cardio { background: rgba(26,64,122,0.2); color: #6a9fd8; }
+.tag-core { background: rgba(30,112,72,0.2); color: #5db882; }
+.tag-deload { background: rgba(176,112,0,0.2); color: #e0b040; }
+.tag-test { background: rgba(168,24,24,0.2); color: #e06060; }
+
+/* ── SÉANCE DETAIL ── */
+#detail { display: none; }
+#detail.active { display: block; }
+
+.detail-header {
+  padding: 52px 20px 16px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--orange);
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 10px;
+  padding: 0;
+}
+
+.detail-seance-id {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 4px;
+  letter-spacing: 0.1em;
+}
+
+.detail-seance-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--white);
+  line-height: 1;
+}
+
+.detail-seance-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+/* Exercise cards */
+.exo-list { padding: 16px 16px 0; }
+
+.exo-card {
+  background: var(--bg3);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.exo-card-header {
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.exo-num {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--orange);
+  min-width: 28px;
+  line-height: 1;
+}
+
+.exo-main { flex: 1 }
+
+.exo-name {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--white);
+}
+
+.exo-tool {
+  font-size: 11px;
+  color: #9b7be8;
+  margin-top: 3px;
+  font-style: italic;
+}
+
+.exo-uni {
+  font-size: 10px;
+  color: var(--blue);
+  color: #6a9fd8;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 2px;
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+.exo-tags {
+  display: flex;
+  gap: 6px;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.exo-type-tag {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 1px;
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+.tag-BIL { background: rgba(200,80,8,0.25); color: var(--orange); }
+.tag-UNI { background: rgba(26,64,122,0.3); color: #6a9fd8; }
+.tag-CORE { background: rgba(30,112,72,0.3); color: #5db882; }
+
+.exo-detail {
+  padding: 0 16px 16px;
+  border-top: 1px solid var(--line);
+}
+
+.exo-detail.collapsed { display: none; }
+
+.exo-detail-text {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+  padding: 12px 0 10px;
+}
+
+.exo-alt {
+  font-size: 12px;
+  color: var(--faint);
+  font-style: italic;
+  margin-bottom: 12px;
+  padding: 6px 10px;
+  border-left: 2px solid var(--faint);
+}
+
+/* Sets/volume grid */
+.exo-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.metric-box {
+  background: var(--bg4);
+  border: 1px solid var(--line);
+  border-radius: 1px;
+  padding: 10px 8px;
+  text-align: center;
+}
+
+.metric-val {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--white);
+  display: block;
+}
+
+.metric-label {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+.intensity-row {
+  padding: 10px 12px;
+  background: var(--bg4);
+  border: 1px solid var(--line);
+  border-radius: 1px;
+  margin-bottom: 8px;
+}
+
+.intensity-label {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--orange);
+}
+
+.intensity-detail {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 3px;
+  font-style: italic;
+}
+
+.rest-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.rest-label {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+.rest-val {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+/* Timer button */
+.timer-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  background: var(--bg);
+  border: 1px solid var(--orange);
+  border-radius: 1px;
+  color: var(--orange);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.timer-btn:active { background: var(--orange); color: #fff; }
+
+/* Grain de sel box */
+.grain-sel-card {
+  margin: 16px;
+  padding: 16px;
+  background: rgba(176,112,0,0.08);
+  border: 1px solid rgba(176,112,0,0.3);
+  border-radius: 2px;
+}
+
+.grain-sel-title {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--amber);
+  margin-bottom: 8px;
+}
+
+.grain-sel-text {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* Notes zone */
+.notes-section {
+  margin: 16px;
+}
+
+.notes-label {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.notes-area {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--line);
+  border-radius: 1px;
+  padding: 12px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  resize: none;
+  min-height: 80px;
+}
+
+.notes-area:focus {
+  outline: none;
+  border-color: var(--orange-dim);
+}
+
+/* ── TIMER SCREEN ── */
+#timer { text-align: center; }
+
+.timer-hero {
+  padding: 60px 20px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.timer-type-label {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.timer-display {
+  font-family: var(--font-display);
+  font-size: clamp(72px, 22vw, 100px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: var(--white);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.3s;
+}
+
+.timer-display.running { color: var(--orange); }
+.timer-display.finished { color: var(--green); }
+.timer-display.warning { color: #e0b040; }
+
+.timer-target {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--faint);
+  margin-top: 10px;
+  letter-spacing: 0.1em;
+}
+
+/* Progress arc */
+.timer-ring {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  margin: 20px auto;
+}
+
+.timer-ring svg {
+  position: absolute;
+  inset: 0;
+  transform: rotate(-90deg);
+}
+
+.timer-ring-bg { stroke: var(--line); }
+.timer-ring-progress {
+  stroke: var(--orange);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s linear, stroke 0.3s;
+}
+
+.timer-ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.timer-controls {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  padding: 0 20px;
+}
+
+.timer-ctrl-btn {
+  flex: 1;
+  padding: 16px;
+  border-radius: 2px;
+  border: none;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.timer-ctrl-btn:active { opacity: 0.7; }
+
+.btn-start { background: var(--orange); color: #fff; }
+.btn-pause { background: var(--bg4); color: var(--text); border: 1px solid var(--line); }
+.btn-reset { background: var(--bg3); color: var(--muted); border: 1px solid var(--line); }
+
+/* Preset timers */
+.timer-presets {
+  margin: 24px 20px 0;
+}
+
+.presets-label {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+  text-align: left;
+  display: block;
+}
+
+.preset-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.preset-btn {
+  padding: 12px 6px;
+  background: var(--bg3);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.preset-btn.active { border-color: var(--orange); background: rgba(200,80,8,0.1); color: var(--orange); }
+.preset-sub { font-size: 9px; font-weight: 400; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; font-family: var(--font-body); }
+
+/* Custom timer input */
+.custom-timer {
+  margin: 16px 20px 0;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.custom-timer input {
+  flex: 1;
+  background: var(--bg3);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 12px;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 20px;
+  text-align: center;
+}
+
+.custom-timer input:focus { outline: none; border-color: var(--orange-dim); }
+
+.custom-set-btn {
+  padding: 12px 16px;
+  background: var(--bg4);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  color: var(--muted);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+/* ── SUIVI SCREEN ── */
+.suivi-section {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.suivi-section-title {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 12px;
+}
+
+/* RPE tracker */
+.rpe-tracker {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rpe-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rpe-exo {
+  font-size: 13px;
+  color: var(--muted);
+  min-width: 110px;
+  flex: 1;
+}
+
+.rpe-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.rpe-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 1px;
+  border: 1px solid var(--line);
+  background: var(--bg3);
+  color: var(--muted);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+
+.rpe-btn.sel-6 { background: rgba(30,112,72,0.4); border-color: var(--green); color: #5db882; }
+.rpe-btn.sel-7 { background: rgba(176,112,0,0.4); border-color: var(--amber); color: #e0b040; }
+.rpe-btn.sel-8 { background: rgba(200,80,8,0.3); border-color: var(--orange); color: var(--orange); }
+.rpe-btn.sel-9 { background: rgba(168,24,24,0.4); border-color: #a81818; color: #e06060; }
+
+/* Asymétry tracker */
+.asym-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.asym-table th {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+
+.asym-table td {
+  padding: 8px;
+  border-bottom: 1px solid var(--line);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.asym-table tr:last-child td { border-bottom: none; }
+
+.asym-input {
+  width: 54px;
+  background: var(--bg3);
+  border: 1px solid var(--line);
+  border-radius: 1px;
+  padding: 5px 6px;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  text-align: center;
+}
+
+.asym-input:focus { outline: none; border-color: var(--orange-dim); }
+
+.asym-pct {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.asym-ok { color: var(--green); }
+.asym-warn { color: #e0b040; }
+.asym-bad { color: #e06060; }
+
+/* Critères checklist */
+.criteres-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.critere-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg3);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.critere-item.checked { border-color: var(--green); background: rgba(30,112,72,0.08); }
+
+.critere-check {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--faint);
+  border-radius: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition: all 0.15s;
+}
+
+.critere-item.checked .critere-check {
+  background: var(--green);
+  border-color: var(--green);
+}
+
+.critere-checkmark {
+  color: #fff;
+  font-size: 12px;
+  display: none;
+}
+
+.critere-item.checked .critere-checkmark { display: block; }
+
+.critere-text {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+  flex: 1;
+}
+
+.critere-item.checked .critere-text { color: var(--text); }
+
+.critere-standard {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--orange);
+}
+
+.progress-bar-wrap {
+  margin-top: 12px;
+  background: var(--bg4);
+  border-radius: 1px;
+  height: 4px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--green);
+  border-radius: 1px;
+  transition: width 0.4s ease;
+}
+
+.progress-label {
+  font-family: var(--font-display);
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 6px;
+  text-align: right;
+}
+
+/* Charge tracker */
+.charge-table-wrap { overflow-x: auto; }
+.charge-table {
+  width: 100%;
+  min-width: 340px;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.charge-table th {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+  padding: 6px 6px;
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.charge-table th:first-child { text-align: left; }
+
+.charge-table td {
+  padding: 7px 6px;
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+}
+
+.charge-table td:first-child {
+  text-align: left;
+  color: var(--text);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.charge-input {
+  width: 38px;
+  background: var(--bg3);
+  border: 1px solid var(--line);
+  border-radius: 1px;
+  padding: 4px 2px;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-align: center;
+}
+
+.charge-input:focus { outline: none; border-color: var(--orange-dim); }
+
+/* Diff indicator */
+.diff-pos { color: var(--green); }
+.diff-neg { color: #e06060; }
+.diff-neu { color: var(--muted); }
+
+/* ── FLOATING TIMER ── */
+#floating-timer {
+  position: fixed;
+  top: 60px;
+  right: 12px;
+  background: var(--orange);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 2px;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 900;
+  z-index: 200;
+  cursor: pointer;
+  display: none;
+  box-shadow: 0 4px 20px rgba(200,80,8,0.5);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(200,80,8,0.5); }
+  50% { box-shadow: 0 4px 30px rgba(200,80,8,0.9); }
+}
+
+/* ── UTILITIES ── */
+.section-divider {
+  height: 1px;
+  background: var(--line);
+  margin: 0 20px;
+}
+
+.info-box {
+  margin: 16px;
+  padding: 14px 16px;
+  border-radius: 2px;
+  border: 1px solid;
+}
+
+.info-box.orange { border-color: rgba(200,80,8,0.4); background: rgba(200,80,8,0.06); }
+.info-box.amber { border-color: rgba(176,112,0,0.4); background: rgba(176,112,0,0.06); }
+.info-box.blue { border-color: rgba(26,64,122,0.4); background: rgba(26,64,122,0.08); }
+.info-box.green { border-color: rgba(30,112,72,0.4); background: rgba(30,112,72,0.08); }
+.info-box.red { border-color: rgba(168,24,24,0.4); background: rgba(168,24,24,0.06); }
+
+.info-box-title {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.info-box.orange .info-box-title { color: var(--orange); }
+.info-box.amber .info-box-title { color: #e0b040; }
+.info-box.blue .info-box-title { color: #6a9fd8; }
+.info-box.green .info-box-title { color: #5db882; }
+.info-box.red .info-box-title { color: #e06060; }
+
+.info-box ul { list-style: none; }
+.info-box ul li {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+  padding: 2px 0;
+}
+
+.info-box ul li::before { content: '▸  '; color: var(--faint); }
+
+.phase2-summary, .phase3-summary {
+  margin: 16px;
+  border-radius: 2px;
+}
+
+.phase-summary-header {
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 2px 2px 0 0;
+}
+
+.phase-summary-header.p2 { background: rgba(26,64,122,0.2); border: 1px solid rgba(26,64,122,0.4); }
+.phase-summary-header.p3 { background: rgba(30,112,72,0.2); border: 1px solid rgba(30,112,72,0.4); }
+
+.summary-phase-num {
+  font-family: var(--font-display);
+  font-size: 48px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.p2 .summary-phase-num { color: #6a9fd8; }
+.p3 .summary-phase-num { color: #5db882; }
+
+.summary-phase-info {}
+.summary-phase-name {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--white);
+}
+
+.summary-phase-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+/* Scrollable body fix for iOS */
+body { -webkit-overflow-scrolling: touch; }
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.screen.active { animation: fadeIn 0.2s ease; }
+
+/* ── RESPONSIVE tweaks ── */
+@media (max-width: 360px) {
+  .exo-metrics { grid-template-columns: repeat(3, 1fr); }
+  .timer-display { font-size: 64px; }
+}
+</style>
+</head>
+<body>
+
+<!-- FLOATING TIMER -->
+<div id="floating-timer" onclick="goToTimer()">⏱ <span id="float-time">0:00</span></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <button class="nav-btn active" onclick="showScreen('home')" data-screen="home">
+    <span class="nav-icon">⚡</span>FORGE
+  </button>
+  <button class="nav-btn" onclick="showScreen('programme')" data-screen="programme">
+    <span class="nav-icon">📋</span>SÉANCES
+  </button>
+  <button class="nav-btn" onclick="showScreen('timer')" data-screen="timer">
+    <span class="nav-icon">⏱</span>TIMER
+  </button>
+  <button class="nav-btn" onclick="showScreen('suivi')" data-screen="suivi">
+    <span class="nav-icon">📊</span>SUIVI
+  </button>
+</nav>
+
+<!-- ═══════════════════════════ HOME ═══════════════════════════ -->
+<div id="home" class="screen active">
+  <div class="home-hero">
+    <div class="forge-wordmark">F<span>O</span>RGE</div>
+    <div class="forge-tagline">Programme d'entraînement · 3 Phases</div>
+  </div>
+
+  <div class="stats-strip" style="margin-top:24px;">
+    <div class="stat-item">
+      <span class="stat-val" id="stat-week">S0</span>
+      <div class="stat-label">Semaine</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val" id="stat-criteres">0/12</span>
+      <div class="stat-label">Critères P1</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val" id="stat-phase">P1</span>
+      <div class="stat-label">Phase</div>
+    </div>
+  </div>
+
+  <div class="phase-cards">
+    <div class="phase-card p1" onclick="showScreen('programme')">
+      <div class="phase-num">1</div>
+      <div class="phase-info">
+        <div class="phase-name">Fondation</div>
+        <div class="phase-sub">KB · Unilatéral · Core · 13 semaines<br>Escalier · Swing/Jeté · Ab Wheel · Planche</div>
+      </div>
+      <div class="phase-arrow">›</div>
+    </div>
+
+    <div class="phase-card p2" onclick="showPhase2()">
+      <div class="phase-num">2</div>
+      <div class="phase-info">
+        <div class="phase-name">Force Relative</div>
+        <div class="phase-sub">Traction lestée · Squat barre · Deadlift<br>8–16 semaines · après validation P1</div>
+      </div>
+      <div class="phase-arrow">›</div>
+    </div>
+
+    <div class="phase-card p3" onclick="showPhase3()">
+      <div class="phase-num">3</div>
+      <div class="phase-info">
+        <div class="phase-name">Spécifique</div>
+        <div class="phase-sub">Boxe · Port de charge · Cardio long<br>Programme continu · jalons définis</div>
+      </div>
+      <div class="phase-arrow">›</div>
+    </div>
+  </div>
+
+  <div class="info-box orange" style="margin-top:0;">
+    <div class="info-box-title">Rappel clé — Règle ×1.5</div>
+    <ul>
+      <li>Pour tout exercice timed ou carry : choisir la charge tenable 1.5× la durée/distance cible</li>
+      <li>Farmer Walk 60s → teste 90s. Si propre = bonne charge</li>
+      <li>Jamais RPE 10 en Phase 1. Plafond = RPE 9</li>
+    </ul>
+  </div>
+
+  <div class="info-box amber">
+    <div class="info-box-title">Démarrage dans 10 jours</div>
+    <ul>
+      <li>J0 : Calibrage 1 — Force + Carries (~60 min)</li>
+      <li>J+2 : Calibrage 2 — Escalier + Core + Grip (~45 min)</li>
+      <li>J+4 : Semaine 0 commence</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ PROGRAMME ═══════════════════════════ -->
+<div id="programme" class="screen">
+  <div class="screen-header">
+    <div class="screen-label">Phase 1</div>
+    <div class="screen-title">Programme</div>
+  </div>
+  <div id="programme-content"></div>
+</div>
+
+<!-- ═══════════════════════════ DETAIL ═══════════════════════════ -->
+<div id="detail" class="screen">
+  <div class="detail-header">
+    <button class="back-btn" onclick="backToProgramme()">‹ Retour</button>
+    <div class="detail-seance-id" id="detail-id"></div>
+    <div class="detail-seance-title" id="detail-title"></div>
+    <div class="detail-seance-sub" id="detail-sub"></div>
+  </div>
+  <div id="detail-content"></div>
+</div>
+
+<!-- ═══════════════════════════ TIMER ═══════════════════════════ -->
+<div id="timer" class="screen">
+  <div class="screen-header">
+    <div class="screen-label">Outil</div>
+    <div class="screen-title">Timer</div>
+  </div>
+
+  <div class="timer-hero">
+    <div class="timer-type-label" id="timer-mode-label">REPOS</div>
+
+    <div class="timer-ring">
+      <svg viewBox="0 0 220 220" width="220" height="220">
+        <circle class="timer-ring-bg" cx="110" cy="110" r="100" fill="none" stroke-width="6"/>
+        <circle class="timer-ring-progress" id="ring-progress" cx="110" cy="110" r="100" fill="none" stroke-width="6"
+          stroke-dasharray="628" stroke-dashoffset="628"/>
+      </svg>
+      <div class="timer-ring-center">
+        <div class="timer-display" id="timer-display">0:00</div>
+        <div class="timer-target" id="timer-target"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="timer-controls">
+    <button class="timer-ctrl-btn btn-start" id="btn-start-pause" onclick="timerStartPause()">START</button>
+    <button class="timer-ctrl-btn btn-reset" onclick="timerReset()">RESET</button>
+  </div>
+
+  <div class="timer-presets">
+    <span class="presets-label">Temps de repos</span>
+    <div class="preset-grid">
+      <button class="preset-btn" onclick="setPreset(45,'REST')">
+        0:45 <span class="preset-sub">court</span>
+      </button>
+      <button class="preset-btn" onclick="setPreset(60,'REST')">
+        1:00 <span class="preset-sub">standard</span>
+      </button>
+      <button class="preset-btn" onclick="setPreset(75,'REST')">
+        1:15
+      </button>
+      <button class="preset-btn" onclick="setPreset(90,'REST')">
+        1:30 <span class="preset-sub">lourd</span>
+      </button>
+      <button class="preset-btn" onclick="setPreset(120,'REST')">
+        2:00 <span class="preset-sub">peak</span>
+      </button>
+      <button class="preset-btn" onclick="setPreset(180,'REST')">
+        3:00
+      </button>
+    </div>
+  </div>
+
+  <div class="timer-presets" style="margin-top:16px;">
+    <span class="presets-label">Escalier KB</span>
+    <div class="preset-grid">
+      <button class="preset-btn" onclick="setPreset(120,'ESCALIER')">
+        2:00 <span class="preset-sub">S0</span>
+      </button>
+      <button class="preset-btn" onclick="setPreset(135,'ESCALIER')">
+        2:15 <span class="preset-sub">B1</span>
+      </button>
+      <button class="preset-btn" onclick="setPreset(180,'ESCALIER')">
+        3:00 <span class="preset-sub">B2</span>
+      </button>
+      <button class="preset-btn" onclick="setPreset(210,'ESCALIER')">
+        3:30 <span class="preset-sub">B2+</span>
+      </button>
+      <button class="preset-btn" onclick="setPreset(240,'ESCALIER')">
+        4:00 <span class="preset-sub">B3</span>
+      </button>
+      <button class="preset-btn" onclick="setPreset(270,'ESCALIER')">
+        4:30 <span class="preset-sub">B3+</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="timer-presets" style="margin-top:16px;">
+    <span class="presets-label">Planches &amp; Core</span>
+    <div class="preset-grid">
+      <button class="preset-btn" onclick="setPreset(20,'CORE')">0:20</button>
+      <button class="preset-btn" onclick="setPreset(25,'CORE')">0:25</button>
+      <button class="preset-btn" onclick="setPreset(30,'CORE')">0:30</button>
+      <button class="preset-btn" onclick="setPreset(40,'CORE')">0:40</button>
+      <button class="preset-btn" onclick="setPreset(45,'CORE')">0:45</button>
+      <button class="preset-btn" onclick="setPreset(60,'CORE')">1:00</button>
+    </div>
+  </div>
+
+  <div class="custom-timer" style="margin-bottom:20px;">
+    <input type="text" id="custom-input" placeholder="M:SS" maxlength="4" inputmode="numeric">
+    <button class="custom-set-btn" onclick="setCustomTimer()">SET</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ SUIVI ═══════════════════════════ -->
+<div id="suivi" class="screen">
+  <div class="screen-header">
+    <div class="screen-label">Tracking</div>
+    <div class="screen-title">Suivi</div>
+  </div>
+
+  <!-- Critères Phase 1 -->
+  <div class="suivi-section">
+    <div class="suivi-section-title">Critères Phase 1 → Phase 2</div>
+    <div class="criteres-list" id="criteres-list"></div>
+    <div class="progress-bar-wrap" style="margin-top:12px;">
+      <div class="progress-bar" id="critere-progress" style="width:0%"></div>
+    </div>
+    <div class="progress-label" id="critere-progress-label">0 / 12 validés</div>
+  </div>
+
+  <!-- Asymétries -->
+  <div class="suivi-section">
+    <div class="suivi-section-title">Asymétries D/G</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Remplir aux semaines 4, 8, 12. Objectif : écart &lt; 10%.</p>
+    <div class="asym-week-tabs" style="display:flex;gap:8px;margin-bottom:12px;">
+      <button class="preset-btn active" id="asym-tab-4" onclick="showAsymWeek(4)" style="flex:1;padding:8px;">S4</button>
+      <button class="preset-btn" id="asym-tab-8" onclick="showAsymWeek(8)" style="flex:1;padding:8px;">S8</button>
+      <button class="preset-btn" id="asym-tab-12" onclick="showAsymWeek(12)" style="flex:1;padding:8px;">S12</button>
+    </div>
+    <div class="charge-table-wrap">
+      <table class="asym-table" id="asym-table"></table>
+    </div>
+  </div>
+
+  <!-- Progression des charges -->
+  <div class="suivi-section">
+    <div class="suivi-section-title">Progression des charges</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Remplir au début de chaque semaine (kg).</p>
+    <div class="charge-table-wrap">
+      <table class="charge-table" id="charge-table"></table>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+// DATA — PROGRAMME PHASE 1
+// ══════════════════════════════════════════════════
+const PROGRAMME = [
+  {
+    id: 'bloc0', label: 'BLOC 0', cls: 'bloc0',
+    title: 'Semaine 0 — Reprise post-Ramadan',
+    weeks: [{
+      num: '0', title: 'Semaine 0 — Remise en route',
+      sub: 'RPE 6–7 · 70% des charges · 2 séries · +30s repos',
+      seances: [
+        {
+          id:'0-A', name:'Séance 0-A', tag:'cardio',
+          sub:'Escalier + Jambes + Core · RPE 6 · 2 séries',
+          exos:[
+            {num:1,name:'Escalier KB 1 main',tag:'BIL',uni:true,tool:'KB 70% charge habituelle',
+             detail:'Fiche calibrage en main · utiliser charge S0 · durée cible 2 min / côté · noter RPE et écart D/G',
+             alt:null,sets:'2',vol:'2 min/côté',int:'RPE 6',intD:'Aisé · réactivation · S0 uniquement',rest:'2:00'},
+            {num:2,name:'Split Squat',tag:'UNI',uni:true,tool:'KB ou Haltères 70%',
+             detail:'Genoux dans l\'axe pied · 3s descente · noter raideurs et asymétries · pas de profondeur forcée',
+             alt:'Barre en back position si confortable',sets:'2',vol:'6/côté',int:'RPE 6',intD:'Aisé · réactivation · S0 uniquement',rest:'1:30'},
+            {num:3,name:'Planche standard',tag:'CORE',uni:false,tool:'Aucun matériel',
+             detail:'Corps planche · fessiers contractés · respiration · voir où en est l\'endurance de gainage',
+             alt:null,sets:'2',vol:'25s',int:'Durée ×1.5',intD:'Variante tenue si tu peux tenir 1.5× le temps cible',rest:'1:00'},
+          ]
+        },
+        {
+          id:'0-B', name:'Séance 0-B', tag:'force',
+          sub:'Swing + Tirage + Ab Wheel · RPE 6 · 2 séries',
+          exos:[
+            {num:1,name:'KB Swing 1 bras',tag:'BIL',uni:true,tool:'KB 70% charge habituelle',
+             detail:'Hip hinge · retrouver le snap des hanches · pas de jeté cette semaine · même vol. D/G',
+             alt:'Haltère tenu à 2 mains (bilatéral) si KB non dispo',sets:'2',vol:'6/côté',int:'RPE 6',intD:'Aisé · réactivation · S0 uniquement',rest:'2:00'},
+            {num:2,name:'Row 1 bras',tag:'UNI',uni:true,tool:'KB, Haltère ou Barre T (70%)',
+             detail:'Appui genou / main opposés · coude haut · omoplate rétractée 2s · lent · noter côté faible',
+             alt:null,sets:'2',vol:'8/côté',int:'RPE 6',intD:'Aisé · réactivation · S0 uniquement',rest:'1:30'},
+            {num:3,name:'Ab Wheel (genoux)',tag:'CORE',uni:false,tool:'Ab Wheel ou KB poignée',
+             detail:'Amplitude réduite à 30° max · retour lent 3s · lombaires protégées · réactiver la chaîne ant.',
+             alt:null,sets:'2',vol:'5 reps',int:'RPE 8',intD:'1–2 reps de réserve · lombaires surveillées',rest:'1:30'},
+          ]
+        },
+        {
+          id:'0-C', name:'Séance 0-C', tag:'cardio',
+          sub:'Escalier + Carries + Core · RPE 6 · 2 séries',
+          exos:[
+            {num:1,name:'Escalier KB (2 KB ou 1 main)',tag:'BIL',uni:false,tool:'KB 70% ou double KB léger',
+             detail:'Charge S0 (fiche calibrage) · viser 2 min / côté · rack ou pendulum · comparer RPE vs séance calibrage',
+             alt:null,sets:'2',vol:'2 min/côté',int:'RPE 6',intD:'Aisé · réactivation · S0 uniquement',rest:'2:00'},
+            {num:2,name:'Suitcase Carry',tag:'UNI',uni:true,tool:'KB, Haltère ou Barre trap (70%)',
+             detail:'Tronc vertical strict · pas de penchée · calibrage ×1.5 allégé cette semaine',
+             alt:null,sets:'2',vol:'20m/côté',int:'Durée ×1.5 · RPE 6',intD:'S0 : charge plus légère · réactivation',rest:'1:30'},
+            {num:3,name:'Dead Bug',tag:'CORE',uni:false,tool:'Aucun (ou KB léger sur poitrine)',
+             detail:'Lombaires collées · bras + jambe opposés · respiration · mobilité + anti-extension doux',
+             alt:null,sets:'2',vol:'6/côté',int:'RPE 8',intD:'1–2 reps de réserve · lombaires surveillées',rest:'1:00'},
+          ]
+        }
+      ]
+    }]
+  },
+  {
+    id: 'bloc1', label: 'BLOC 1', cls: 'bloc1',
+    title: 'Semaines 1–4 · Remise en charge',
+    weeks: [
+      {
+        num:'1', title:'Semaine 1 — Calibrage', sub:'RPE 7–8 · fixer les charges de référence · premier bilan D/G',
+        seances:[
+          {id:'1-A',name:'Séance 1-A',tag:'force',sub:'Escalier + Jambes + Planche · RPE 7–8',exos:[
+            {num:1,name:'Escalier KB 1 main',tag:'BIL',uni:true,tool:'KB (préférence) ou Haltère',
+             detail:'Charge S1 (fiche calibrage) · durée cible 2 min / côté · RPE 8 = tu pourrais tenir ~3 min avec cette charge',
+             alt:null,sets:'3',vol:'2 min/côté',int:'RPE 8',intD:'1–2 reps en réserve · ne pas aller à l\'échec',rest:'1:30'},
+            {num:2,name:'Split Squat',tag:'UNI',uni:true,tool:'KB ou Haltères (chaque main)',
+             detail:'3s descente · genou avant dans l\'axe pied · commencer côté faible · noter écart reps D/G',
+             alt:'Barre back squat position · attention équilibre',sets:'3',vol:'8/côté',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:15'},
+            {num:3,name:'Planche standard',tag:'CORE',uni:false,tool:'Aucun matériel',
+             detail:'Calibrer par règle ×1.5 : si 30s cible → choisir variante tenue 45s propre',
+             alt:null,sets:'3',vol:'30s',int:'Durée ×1.5',intD:'Variante tenue si tu peux tenir 1.5× le temps cible',rest:'1:00'},
+          ]},
+          {id:'1-B',name:'Séance 1-B',tag:'force',sub:'Swing + Row + Ab Wheel · RPE 8',exos:[
+            {num:1,name:'KB Swing 1 bras',tag:'BIL',uni:true,tool:'KB uniquement (balistique)',
+             detail:'Hip hinge explosif · snap des hanches · KB descend entre jambes · même vol. D/G · qualité max',
+             alt:'Haltère 1 main (moins optimal mais fonctionne)',sets:'4',vol:'8/côté',int:'Qualité max',intD:'Chaque rep explosive · pas de fatigue accumulée',rest:'1:15'},
+            {num:2,name:'Row 1 bras',tag:'UNI',uni:true,tool:'KB, Haltère ou Barre T-bar',
+             detail:'Coude tiré haut · omoplate rétractée 2s en haut · noter 5RM D et G · ne pas tourner le dos',
+             alt:'Barre T-bar en bilatéral si manque de charge',sets:'3',vol:'10/côté',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:00'},
+            {num:3,name:'Ab Wheel genoux',tag:'CORE',uni:false,tool:'Ab Wheel ou KB poignée plate',
+             detail:'Viser 45° amplitude · retour 3s · RPE 8 = 1–2 reps de plus possibles · lombaires silencieuses',
+             alt:null,sets:'3',vol:'6–8 reps',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:30'},
+          ]},
+          {id:'1-C',name:'Séance 1-C',tag:'cardio',sub:'Escalier rack + Suitcase + Woodchop',exos:[
+            {num:1,name:'Escalier KB (rack pos.)',tag:'BIL',uni:true,tool:'KB uniquement (rack position)',
+             detail:'Rack position · bras libre en garde · plus exigeant · charge identique séance A · cible 2 min / côté',
+             alt:null,sets:'3',vol:'2 min/côté',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:30'},
+            {num:2,name:'Suitcase Carry',tag:'UNI',uni:true,tool:'KB, Haltère ou Barre trap',
+             detail:'Règle ×1.5 : charge tenue 45m propre → utiliser pour les 30m de séance · tronc neutre strict',
+             alt:null,sets:'3',vol:'30m/côté',int:'Durée ×1.5',intD:'Charge tenue 1.5× la distance cible',rest:'1:00'},
+            {num:3,name:'Woodchop KB bas→haut',tag:'CORE',uni:true,tool:'KB (préférence) ou Haltère',
+             detail:'Rotation des hanches d\'abord · bras suivent · côté faible en premier · KB léger = RPE 8 reps',
+             alt:'Barre landmine : excellent pour charger ce mouvement',sets:'3',vol:'10/côté',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:00'},
+          ]},
+        ]
+      },
+      {
+        num:'2', title:'Semaine 2 — Équilibrage', sub:'+ reps côté faible · charges identiques · égaliser D/G',
+        seances:[
+          {id:'2-A',name:'Séance 2-A',tag:'force',sub:'Escalier +15s + Split Squat + Planche 1 jambe',exos:[
+            {num:1,name:'Escalier KB 1 main',tag:'BIL',uni:true,tool:'KB ou Haltère',
+             detail:'+15s vs S1 / côté · si main faible lâche avant : +1 série cette main · noter les durées D et G',
+             alt:null,sets:'3',vol:'2 min 15s/côté',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:30'},
+            {num:2,name:'Split Squat',tag:'UNI',uni:true,tool:'KB ou Haltères',
+             detail:'Côté faible : +1 rep vs S1 · même charge · objectif parité cette semaine',
+             alt:'Barre back si charge KB insuffisante',sets:'3',vol:'9–10/côté',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:15'},
+            {num:3,name:'Planche 1 jambe alt.',tag:'CORE',uni:true,tool:'Aucun matériel',
+             detail:'Lever 1 jambe 5s → changer · total 40s · règle ×1.5 : tenir 60s planche standard avant de progresser',
+             alt:null,sets:'3',vol:'40s',int:'Durée ×1.5',intD:'Variante tenue si tu peux tenir 1.5× le temps cible',rest:'1:00'},
+          ]},
+          {id:'2-B',name:'Séance 2-B',tag:'force',sub:'Swing +2 reps + Press 1 bras + Ab Wheel',exos:[
+            {num:1,name:'KB Swing 1 bras',tag:'BIL',uni:true,tool:'KB uniquement',
+             detail:'+2 reps vs S1 · focus fermeture des hanches · bras passif (pas de tirage)',
+             alt:null,sets:'4',vol:'10/côté',int:'Qualité max',intD:'Chaque rep explosive',rest:'1:15'},
+            {num:2,name:'Press 1 bras',tag:'UNI',uni:true,tool:'KB en rack (préférence) ou Haltère',
+             detail:'KB rack position · pousser vertical · gainage anti-latéral · noter 5RM D et G',
+             alt:'Haltère : range of motion identique · KB préféré pour le gainage',sets:'3',vol:'8/côté',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:00'},
+            {num:3,name:'Ab Wheel genoux',tag:'CORE',uni:false,tool:'Ab Wheel ou KB',
+             detail:'Amplitude progressive : viser 60° si S1 propre · retour 3s · RPE 8 = 1–2 reps en réserve',
+             alt:null,sets:'3',vol:'8 reps',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:30'},
+          ]},
+          {id:'2-C',name:'Séance 2-C',tag:'cardio',sub:'Escalier volume + RDL 1 jambe + Side Planche',exos:[
+            {num:1,name:'Escalier KB (volume)',tag:'BIL',uni:true,tool:'KB ou Haltère',
+             detail:'4 séries · même durée chaque série · comparer D vs G · noter où la technique baisse en premier',
+             alt:null,sets:'4',vol:'2 min/côté',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:30'},
+            {num:2,name:'Romanian DL 1 jambe',tag:'UNI',uni:true,tool:'KB, Haltère ou Barre',
+             detail:'Hip hinge 1 jambe · dos plat · regard sol · 3s descente · barre = plus de stabilité requise',
+             alt:'Barre 2 mains : possible si équilibre solide',sets:'3',vol:'8/côté',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:00'},
+            {num:3,name:'Side Planche',tag:'CORE',uni:true,tool:'Aucun matériel',
+             detail:'Anti-flexion latérale · hanche haute · règle ×1.5 : tenir 40s propre → travailler les 25s',
+             alt:null,sets:'3',vol:'25s/côté',int:'Durée ×1.5',intD:'Variante tenue si tu peux tenir 1.5× le temps cible',rest:'1:00'},
+          ]},
+        ]
+      },
+      {
+        num:'3', title:'Semaine 3 — Surcharge', sub:'Charges +2–4 kg si D/G égaux · 4 séries sur principaux',
+        seances:[
+          {id:'3-A',name:'Séance 3-A',tag:'force',sub:'Escalier +charge + Squat Bulgare + RKC Plank',exos:[
+            {num:1,name:'Escalier KB (charge +)',tag:'BIL',uni:true,tool:'KB ou Haltère +2–4 kg',
+             detail:'+2–4 kg si S1–2 propres · même durée cible 2 min · RPE 8 doit être maintenu · noter si durée chute',
+             alt:null,sets:'4',vol:'2 min/côté',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:30'},
+            {num:2,name:'Squat Bulgare',tag:'UNI',uni:true,tool:'KB ou Haltères (chaque main)',
+             detail:'Pied arrière surélevé 30–40cm · profond · noter asymétrie de profondeur D/G',
+             alt:'Barre back : plus de charge possible · attention équilibre initial',sets:'3',vol:'6/côté',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:15'},
+            {num:3,name:'RKC Plank',tag:'CORE',uni:false,tool:'Aucun matériel',
+             detail:'Contracter TOUT : fessiers, quads, abdos · coudes tirés vers pieds · court mais maximal · RPE 9',
+             alt:null,sets:'3',vol:'20–30s',int:'RPE 9',intD:'1 rep en réserve max · effort maximal',rest:'1:15'},
+          ]},
+          {id:'3-B',name:'Séance 3-B',tag:'force',sub:'Swing→Jeté + Row charge + Ab Wheel full',exos:[
+            {num:1,name:'Swing → Jeté 1 bras',tag:'BIL',uni:true,tool:'KB uniquement',
+             detail:'Swing 1 bras → catch rack · absorption coude dedans · même vol. D/G · charge +2 kg si S1 propre',
+             alt:null,sets:'4',vol:'6/côté',int:'Qualité max',intD:'Chaque rep explosive',rest:'1:30'},
+            {num:2,name:'Row 1 bras (charge +)',tag:'UNI',uni:true,tool:'KB, Haltère ou Barre T',
+             detail:'+2 kg vs S1 · 3s contraction haute · noter si un côté arrondit le dos sous charge',
+             alt:null,sets:'4',vol:'8/côté',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:15'},
+            {num:3,name:'Ab Wheel genoux (full)',tag:'CORE',uni:false,tool:'Ab Wheel ou KB',
+             detail:'Amplitude max safe · viser 75–90° · retour lent 4s · si lombaires → 60° max · RPE 8',
+             alt:null,sets:'3',vol:'8–10 reps',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:30'},
+          ]},
+          {id:'3-C',name:'Séance 3-C',tag:'cardio',sub:'Escalier rack charge + Suitcase+ + Hollow Body',exos:[
+            {num:1,name:'Escalier KB (rack, +)',tag:'BIL',uni:true,tool:'KB rack position',
+             detail:'Rack position · charge max propre · viser 2 min / côté · noter la limite avant dégradation posture',
+             alt:null,sets:'3',vol:'2 min/côté',int:'RPE 8–9',intD:'Dernière série peut toucher l\'échec technique',rest:'2:00'},
+            {num:2,name:'Suitcase Carry (charge +)',tag:'UNI',uni:true,tool:'KB, Haltère ou Barre trap (+)',
+             detail:'+4 kg vs S1 · règle ×1.5 : recalibrer avec nouvelle charge · 35m de séance',
+             alt:null,sets:'3',vol:'35m/côté',int:'Durée ×1.5',intD:'Charge tenue 1.5× la distance cible',rest:'1:15'},
+            {num:3,name:'Hollow Body Hold',tag:'CORE',uni:false,tool:'Aucun (option : haltère léger bras tendus)',
+             detail:'Lombaires au sol · bras tendus derrière · jambes tendues basses · règle ×1.5 sur durée',
+             alt:null,sets:'3',vol:'20–25s',int:'Durée ×1.5',intD:'Variante tenue si tu peux tenir 1.5× le temps cible',rest:'1:15'},
+          ]},
+        ]
+      },
+      {
+        num:'4', title:'Semaine 4 — Déload', sub:'Volume ÷2 · charges identiques · RPE 6–7 · tests',
+        seances:[
+          {id:'4-X',name:'Déload S4',tag:'deload',sub:'2 séries · mêmes exercices S3 · RPE 6–7 · +mobilité',exos:[
+            {num:1,name:'Escalier KB · Split Squat · RKC Plank',tag:'BIL',uni:false,tool:'Mêmes charges S3',
+             detail:'2 séries par exercice. RPE 6–7. +15 min mobilité hanche fin de séance.',
+             alt:'Séance 4-A : comme 3-A',sets:'2',vol:'Comme S3',int:'RPE 6–7',intD:'Focus technique et récupération',rest:'2:00'},
+            {num:2,name:'Dead Hang — TEST',tag:'CORE',uni:false,tool:'Barre de traction',
+             detail:'Tenir le plus longtemps possible · bras tendus · noter le temps. Objectif à ce stade : 15s minimum.',
+             alt:null,sets:'3',vol:'Max',int:'Max propre',intD:'Pas d\'effort supplémentaire',rest:'2:00'},
+            {num:3,name:'RKC Plank — TEST',tag:'CORE',uni:false,tool:'Aucun matériel',
+             detail:'Tenir le plus longtemps possible en contractant tout. Noter le temps. Remplir tableau S4.',
+             alt:null,sets:'1',vol:'Max',int:'Max propre',intD:'Remplir table de suivi',rest:'2:00'},
+          ]},
+        ]
+      },
+    ]
+  },
+  {
+    id:'bloc2', label:'BLOC 2', cls:'bloc2',
+    title:'Semaines 5–8 · Charge lourde',
+    weeks:[
+      {
+        num:'5', title:'Semaine 5 — Charge lourde', sub:'Bloc 1 + 4–6 kg · variantes unilatérales avancées · RPE 8–9',
+        seances:[
+          {id:'5-A',name:'Séance 5-A',tag:'force',sub:'Escalier rack surcharge + Squat Bulgare + Ab Wheel full',exos:[
+            {num:1,name:'Escalier KB (rack surcharge)',tag:'BIL',uni:true,tool:'KB rack position, +4–6 kg',
+             detail:'Charge Bloc 1 + 4 kg · rack position · cible 3 min / côté · RPE 8–9 · noter durée exacte main faible',
+             alt:null,sets:'4',vol:'3 min/côté',int:'RPE 8–9',intD:'Dernière série peut toucher l\'échec technique',rest:'1:30'},
+            {num:2,name:'Squat Bulgare (charge +)',tag:'UNI',uni:true,tool:'KB ou Haltères (+) ou Barre',
+             detail:'+2 kg vs S3 · si D/G inégal : +1 série côté faible · profondeur identique · barre = charge max',
+             alt:'Barre back squat : permet de charger beaucoup plus',sets:'3',vol:'6/côté',int:'RPE 8–9',intD:'Dernière série peut toucher l\'échec technique',rest:'1:15'},
+            {num:3,name:'Ab Wheel genoux (full range)',tag:'CORE',uni:false,tool:'Ab Wheel ou KB',
+             detail:'Amplitude maximale propre · retour 4s · objectif : toucher sol bras tendus sans compenser',
+             alt:null,sets:'3',vol:'10 reps',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:30'},
+          ]},
+          {id:'5-B',name:'Séance 5-B',tag:'force',sub:'Swing/Jeté + Press 5RM + Pallof Press',exos:[
+            {num:1,name:'Swing → Jeté (charge +)',tag:'BIL',uni:true,tool:'KB uniquement (+4 kg)',
+             detail:'+4 kg vs S3 · catch solide · coude dedans · comparer temps de catch D/G',
+             alt:null,sets:'4',vol:'6/côté',int:'Qualité max',intD:'Chaque rep explosive',rest:'1:30'},
+            {num:2,name:'Press 1 bras (5RM)',tag:'UNI',uni:true,tool:'KB en rack ou Haltère',
+             detail:'5 reps avec charge max propre · RPE 9 sur la 5e rep · noter 5RM D et G · écart > 1 kg = +1 série côté faible',
+             alt:'Haltère : légèrement plus libre en ROM · KB préféré pour gainage',sets:'4',vol:'5/côté',int:'RPE 9',intD:'1 rep en réserve max · effort maximal',rest:'1:15'},
+            {num:3,name:'Pallof Press',tag:'CORE',uni:true,tool:'Élastique ou câble (ou KB en offset)',
+             detail:'Bras poussés devant · tenir 2s · résister rotation · règle ×1.5 sur durée de tension',
+             alt:'KB tenu en position offset = anti-rotation statique',sets:'3',vol:'10/côté',int:'Durée ×1.5',intD:'Résistance choisie si tu peux tenir 1.5× la durée',rest:'1:00'},
+          ]},
+          {id:'5-C',name:'Séance 5-C',tag:'cardio',sub:'Escalier double + Overhead Carry + Side Planche KB',exos:[
+            {num:1,name:'Escalier KB (double test)',tag:'BIL',uni:true,tool:'KB charge max',
+             detail:'3 séries main D · 3 séries main G · même charge · noter si la qualité diverge entre mains',
+             alt:null,sets:'3+3',vol:'3 min/côté',int:'RPE 8–9',intD:'Dernière série peut toucher l\'échec technique',rest:'1:30'},
+            {num:2,name:'Overhead Carry 1 bras',tag:'UNI',uni:true,tool:'KB bras tendu (préférence)',
+             detail:'Règle ×1.5 : charge tenue 30m propre → utiliser pour 20m · épaule active · lent',
+             alt:'Haltère : identique en logique · KB plus instable = plus de gainage',sets:'3',vol:'20m/côté',int:'Durée ×1.5',intD:'Charge tenue 1.5× la distance cible',rest:'1:30'},
+            {num:3,name:'Side Planche KB posé',tag:'CORE',uni:true,tool:'KB posé sur hanche haute',
+             detail:'Side planche + KB sur hanche · règle ×1.5 : tenir 45s avant de l\'utiliser pour 30s',
+             alt:'Haltère léger à la place du KB',sets:'3',vol:'30s/côté',int:'Durée ×1.5',intD:'Variante tenue si tu peux tenir 1.5× le temps cible',rest:'1:15'},
+          ]},
+        ]
+      },
+      {
+        num:'6', title:'Semaine 6 — Volume maximum', sub:'4 séries sur tout · RPE 8–9 · charges peak Bloc 2',
+        seances:[
+          {id:'6-A',name:'Séance 6-A',tag:'cardio',sub:'Escalier volume + Fente latérale + Dead Bug lesté',exos:[
+            {num:1,name:'Escalier KB (volume)',tag:'BIL',uni:true,tool:'KB charge S5',
+             detail:'4 séries · cible 3 min 30 / côté · RPE 8–9 · volume peak du Bloc 2 · noter si durée tient sur 4 séries',
+             alt:null,sets:'4',vol:'3 min 30s/côté',int:'RPE 8–9',intD:'Dernière série peut toucher l\'échec technique',rest:'2:00'},
+            {num:2,name:'Fente latérale',tag:'UNI',uni:true,tool:'KB ou Haltères dans chaque main',
+             detail:'Plan frontal · jambe libre part loin · talon ancré · étirement adducteur · RPE 8',
+             alt:'Barre front rack pour plus de charge',sets:'4',vol:'10/côté',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:00'},
+            {num:3,name:'Dead Bug lesté',tag:'CORE',uni:true,tool:'KB ou Haltère léger bras tendus',
+             detail:'Anti-extension sous charge · lombaires collées au sol · RPE 8 = 1–2 reps en réserve',
+             alt:null,sets:'3',vol:'8/côté',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:15'},
+          ]},
+          {id:'6-B',name:'Séance 6-B',tag:'force',sub:'Swing volume + Row+Press superset + Windmill',exos:[
+            {num:1,name:'KB Swing 1 bras (volume)',tag:'BIL',uni:true,tool:'KB charge S5',
+             detail:'5 séries · endurance grip · noter si asymétrie réapparaît sous fatigue prolongée',
+             alt:null,sets:'5',vol:'8/côté',int:'Qualité max',intD:'Chaque rep explosive',rest:'1:30'},
+            {num:2,name:'Row + Press superset',tag:'UNI',uni:true,tool:'KB ou Haltère',
+             detail:'8 Row → 8 Press même côté sans repos · puis changer · force-endurance locale · RPE 8 sur chaque',
+             alt:null,sets:'3',vol:'8+8/côté',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:30'},
+            {num:3,name:'Windmill KB',tag:'CORE',uni:true,tool:'KB bras haut (préférence)',
+             detail:'Hanche poussée côté · bras haut verrouillé · 3s descente · lent · RPE 8',
+             alt:'Haltère bras haut : identique mais KB préféré',sets:'3',vol:'5/côté',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:15'},
+          ]},
+          {id:'6-C',name:'Séance 6-C',tag:'cardio',sub:'Escalier rack volume + RDL + Rotation combo',exos:[
+            {num:1,name:'Escalier KB (rack, volume)',tag:'BIL',uni:true,tool:'KB rack position',
+             detail:'4 séries · charge max propre · cible 3 min / côté · noter la série où la technique fléchit',
+             alt:null,sets:'4',vol:'3 min/côté',int:'RPE 8–9',intD:'Dernière série peut toucher l\'échec technique',rest:'1:30'},
+            {num:2,name:'Romanian DL 1 jambe (+)',tag:'UNI',uni:true,tool:'KB, Haltère ou Barre (+)',
+             detail:'+2 kg vs S2 · 3s descente · pause 1s bas · barre = charge plus lourde possible · bassin horizontal',
+             alt:'Barre 2 mains : excellent si équilibre acquis',sets:'4',vol:'8/côté',int:'RPE 8–9',intD:'Dernière série peut toucher l\'échec technique',rest:'1:15'},
+            {num:3,name:'Rotation + Anti-rotation',tag:'CORE',uni:true,tool:'KB ou Haltère + Élastique',
+             detail:'8 Woodchop KB → 30s Pallof Press même côté · sans pause · RPE 8 sur le Woodchop',
+             alt:'Barre landmine pour le woodchop lourd',sets:'3',vol:'8+30s/côté',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:15'},
+          ]},
+        ]
+      },
+      {
+        num:'7', title:'Semaine 7 — Peak Bloc 2', sub:'Ab Wheel debout intro · Planche 1 bras · RPE 9',
+        seances:[
+          {id:'7-A',name:'Séance 7-A',tag:'force',sub:'Escalier peak + Squat Bulgare 3RM + Ab Wheel debout intro',exos:[
+            {num:1,name:'Escalier KB (charge peak)',tag:'BIL',uni:true,tool:'KB charge max du programme',
+             detail:'Charge max avec technique propre · cible 3 min 30 / côté · RPE 9 · tester la limite durée + charge',
+             alt:null,sets:'3',vol:'3 min 30s/côté',int:'RPE 9',intD:'1 rep en réserve max · effort maximal',rest:'2:00'},
+            {num:2,name:'Squat Bulgare (3RM)',tag:'UNI',uni:true,tool:'KB, Haltères ou Barre',
+             detail:'3 reps avec charge max · RPE 9 · noter 3RM D et G · barre = option charge max ici',
+             alt:null,sets:'4',vol:'3/côté',int:'RPE 9',intD:'1 rep en réserve max · effort maximal',rest:'2:00'},
+            {num:3,name:'Ab Wheel debout (intro)',tag:'CORE',uni:false,tool:'Ab Wheel',
+             detail:'Pieds au sol · amplitude 30–40° max · TRÈS lent · retour 5s · 5 reps · RPE 8 même à faible amp.',
+             alt:null,sets:'3',vol:'5 reps',int:'RPE 8',intD:'1–2 reps en réserve',rest:'2:00'},
+          ]},
+          {id:'7-B',name:'Séance 7-B',tag:'force',sub:'Double KB Swing/Jeté + Overhead Carry + Planche 1 bras',exos:[
+            {num:1,name:'Double KB Swing → Jeté D/G',tag:'BIL',uni:true,tool:'2 KB (1 par main)',
+             detail:'Double swing → jeté 1 bras · alterner D/G · 2×16–20 kg · catch propre · qualité max',
+             alt:null,sets:'4',vol:'5/côté',int:'Qualité max',intD:'Chaque rep explosive',rest:'2:00'},
+            {num:2,name:'Overhead Carry (+)',tag:'UNI',uni:true,tool:'KB bras tendu (+2 kg vs S5)',
+             detail:'+2 kg · règle ×1.5 recalibrée · 25m séance · scapulaire active · contrôle tronc',
+             alt:'Haltère identique',sets:'3',vol:'25m/côté',int:'Durée ×1.5',intD:'Charge tenue 1.5× la distance cible',rest:'1:30'},
+            {num:3,name:'Planche 1 bras (prép.)',tag:'CORE',uni:true,tool:'Aucun matériel',
+             detail:'Poids transféré progressivement sur 1 bras · 15s / côté · règle ×1.5 : tenir 22s avant d\'y travailler',
+             alt:null,sets:'3',vol:'15s/côté',int:'Durée ×1.5',intD:'Variante tenue si tu peux tenir 1.5× le temps cible',rest:'1:30'},
+          ]},
+          {id:'7-C',name:'Séance 7-C',tag:'test',sub:'TEST Escalier 4 min 24 kg + Suitcase peak + Good Morning',exos:[
+            {num:1,name:'Escalier KB (test 4 min)',tag:'BIL',uni:true,tool:'KB 24 kg (charge critère Phase 2)',
+             detail:'Test critère Phase 2 : tenir 4 min / côté à 24 kg · RPE 8–9 · noter durée exacte D et G',
+             alt:null,sets:'2',vol:'4 min/côté',int:'RPE 8–9',intD:'Dernier test pré-Bloc 3',rest:'2:00'},
+            {num:2,name:'Suitcase Carry (peak)',tag:'UNI',uni:true,tool:'KB, Haltère ou Barre trap (peak)',
+             detail:'Règle ×1.5 : recalibrer avec charge peak · 40m séance · noter charge clean par côté',
+             alt:null,sets:'3',vol:'40m/côté',int:'Durée ×1.5',intD:'Charge tenue 1.5× la distance cible',rest:'1:30'},
+            {num:3,name:'Good Morning',tag:'CORE',uni:false,tool:'KB derrière tête ou Barre',
+             detail:'Hip hinge debout · dos plat · étirement ischio · barre = option charge max · lent',
+             alt:'Barre sur trapèzes : classique et très efficace',sets:'3',vol:'10 reps',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:15'},
+          ]},
+        ]
+      },
+      {
+        num:'8', title:'Semaine 8 — Déload + Évaluation', sub:'Volume -40% · RPE 6–7 · tests D/G · comparer S4',
+        seances:[
+          {id:'8-X',name:'Déload S8',tag:'deload',sub:'2 séries · comme S7 · RPE 6–7 · tests clés',exos:[
+            {num:1,name:'Escalier KB · Squat Bulgare · Ab Wheel debout',tag:'BIL',uni:false,tool:'Mêmes charges S7',
+             detail:'Séance 8-A : 2 séries. RPE 6–7. Tester Ab Wheel debout : noter amplitude max propre.',
+             alt:null,sets:'2',vol:'Comme S7',int:'RPE 6–7',intD:'Focus récupération',rest:'2:00'},
+            {num:2,name:'Planche 1 bras — TEST',tag:'CORE',uni:true,tool:'Aucun matériel',
+             detail:'Séance 8-B : noter temps propre D et G. Objectif : écart < 5s entre les deux côtés.',
+             alt:null,sets:'2',vol:'Max/côté',int:'Max propre',intD:'Remplir tableau S8',rest:'2:00'},
+            {num:3,name:'Dead Hang — TEST',tag:'CORE',uni:false,tool:'Barre de traction',
+             detail:'Séance 8-C : noter le temps. Objectif : 20s minimum à ce stade. Remplir colonne S8 dans le suivi.',
+             alt:null,sets:'3',vol:'Max',int:'Max propre',intD:'Remplir table de suivi',rest:'2:00'},
+          ]},
+        ]
+      },
+    ]
+  },
+  {
+    id:'bloc3', label:'BLOC 3', cls:'bloc3',
+    title:'Semaines 9–12 · Validation',
+    weeks:[
+      {
+        num:'9', title:'Semaine 9 — Surcharge', sub:'Charges peak · Ab Wheel debout · Planche 1 bras 20s · RPE 9',
+        seances:[
+          {id:'9-A',name:'Séance 9-A',tag:'force',sub:'Escalier surcharge + Squat Bulgare volume + Ab Wheel debout',exos:[
+            {num:1,name:'Escalier KB (surcharge)',tag:'BIL',uni:true,tool:'KB +2–4 kg vs Bloc 2 peak',
+             detail:'Charge max avec technique propre · cible 4 min / côté · RPE 9 · tester limite durée + grip + posture',
+             alt:null,sets:'4',vol:'4 min/côté',int:'RPE 9',intD:'1 rep en réserve max · effort maximal',rest:'2:00'},
+            {num:2,name:'Squat Bulgare (volume)',tag:'UNI',uni:true,tool:'KB, Haltères ou Barre',
+             detail:'Charge S7 · 8 reps · volume peak · noter si asymétrie de profondeur est enfin résolue',
+             alt:null,sets:'4',vol:'8/côté',int:'RPE 8–9',intD:'Dernière série peut toucher l\'échec technique',rest:'1:15'},
+            {num:3,name:'Ab Wheel debout (prog.)',tag:'CORE',uni:false,tool:'Ab Wheel uniquement',
+             detail:'Amplitude +10° vs S7 · viser 45–50° · retour 5s · 8 reps · RPE 8 · lombaires silencieuses',
+             alt:null,sets:'3',vol:'8 reps',int:'RPE 8',intD:'1–2 reps en réserve',rest:'2:00'},
+          ]},
+          {id:'9-B',name:'Séance 9-B',tag:'test',sub:'Double KB Swing 5×15 (critère) + Press peak + Planche 1 bras 20s',exos:[
+            {num:1,name:'Double KB Swing (5×15)',tag:'BIL',uni:false,tool:'2 KB 16 kg (critère Phase 2)',
+             detail:'CRITÈRE Phase 2 : 5×15 reps · dos plat · explosion hanches · RPE 8 sur les 3 premières séries',
+             alt:null,sets:'5',vol:'15 reps',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:30'},
+            {num:2,name:'Press 1 bras (peak)',tag:'UNI',uni:true,tool:'KB rack ou Haltère (charge peak)',
+             detail:'5 reps avec charge max · RPE 9 · noter 5RM D et G · si écart > 10% : +1 série côté faible',
+             alt:null,sets:'4',vol:'5/côté',int:'RPE 9',intD:'1 rep en réserve max · effort maximal',rest:'1:30'},
+            {num:3,name:'Planche 1 bras (20s)',tag:'CORE',uni:true,tool:'Aucun matériel',
+             detail:'Objectif 20s propres / côté · règle ×1.5 : tenir 30s avant de viser les 20s · noter écart D/G',
+             alt:null,sets:'3',vol:'20s/côté',int:'Durée ×1.5',intD:'Variante tenue si tu peux tenir 1.5× le temps cible',rest:'1:30'},
+          ]},
+          {id:'9-C',name:'Séance 9-C',tag:'test',sub:'Escalier test 4 min 24 kg + Overhead Carry peak + Side Planche',exos:[
+            {num:1,name:'Escalier KB (test 4 min — critère)',tag:'BIL',uni:true,tool:'KB 24 kg',
+             detail:'CRITÈRE Phase 2 : tenir 4 min / côté à 24 kg · les 2 mains · noter écart D/G en secondes et %',
+             alt:null,sets:'3',vol:'4 min/côté',int:'RPE 8–9',intD:'Dernière série peut toucher l\'échec technique',rest:'2:00'},
+            {num:2,name:'Overhead Carry (peak)',tag:'UNI',uni:true,tool:'KB +2 kg vs S7',
+             detail:'Règle ×1.5 recalibrée · 25m séance · limite de charge scapulaire stable',
+             alt:null,sets:'3',vol:'25m/côté',int:'Durée ×1.5',intD:'Charge tenue 1.5× la distance cible',rest:'1:30'},
+            {num:3,name:'Side Planche (élévation)',tag:'CORE',uni:true,tool:'Aucun (ou KB sur hanche)',
+             detail:'Side planche → élever hanche → descendre · 10 reps dynamiques / côté · pause haute 2s',
+             alt:null,sets:'3',vol:'10/côté',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:15'},
+          ]},
+        ]
+      },
+      {
+        num:'10', title:'Semaine 10 — Correction finale', sub:'Volume extra côté faible · RPE 8–9',
+        seances:[
+          {id:'10-A',name:'Séance 10-A',tag:'force',sub:'Escalier D/G comparé + Fente+RDL combo + Ab Wheel debout',exos:[
+            {num:1,name:'Escalier KB D/G comparé',tag:'BIL',uni:true,tool:'KB charge max',
+             detail:'3 séries main D · pause · 3 séries main G · même charge · noter si l\'écart de durée D/G se resserre',
+             alt:null,sets:'3+3',vol:'4 min/côté',int:'RPE 8–9',intD:'Dernière série peut toucher l\'échec technique',rest:'1:30'},
+            {num:2,name:'Fente + RDL combo',tag:'UNI',uni:true,tool:'KB, Haltère ou Barre',
+             detail:'1 fente avant + 1 RDL même jambe = 1 rep · lent · côté faible +1 série · RPE 8',
+             alt:null,sets:'3(+1)',vol:'6/côté',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:30'},
+            {num:3,name:'Ab Wheel debout (8 reps)',tag:'CORE',uni:false,tool:'Ab Wheel',
+             detail:'Amplitude S9 maintenue · 8 reps · retour 5s · concentration max lombaires · RPE 8',
+             alt:null,sets:'3',vol:'8 reps',int:'RPE 8',intD:'1–2 reps en réserve',rest:'2:00'},
+          ]},
+          {id:'10-B',name:'Séance 10-B',tag:'force',sub:'Swing volume + Press+Row superset +1 côté + Hollow+Side',exos:[
+            {num:1,name:'KB Swing 1 bras (volume)',tag:'BIL',uni:true,tool:'KB charge S9',
+             detail:'5 séries · voir si côté faible rattrape enfin sous fatigue prolongée · RPE 8',
+             alt:null,sets:'5',vol:'8/côté',int:'Qualité max',intD:'Chaque rep explosive',rest:'1:30'},
+            {num:2,name:'Press + Row superset (+1)',tag:'UNI',uni:true,tool:'KB ou Haltère',
+             detail:'8 Press → 8 Row même côté · côté faible +1 série · RPE 8 sur chaque mouvement',
+             alt:null,sets:'3(+1)',vol:'8+8/côté',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:30'},
+            {num:3,name:'Hollow Body + Side Planche',tag:'CORE',uni:false,tool:'Aucun matériel',
+             detail:'20s Hollow Body → 30s Side Planche D → 30s Side Planche G · enchaîné · règle ×1.5 sur chaque',
+             alt:null,sets:'3',vol:'combo',int:'Durée ×1.5',intD:'Variante tenue si tu peux tenir 1.5× le temps cible',rest:'1:30'},
+          ]},
+          {id:'10-C',name:'Séance 10-C',tag:'force',sub:'Double KB Swing/Jeté dbl + Suitcase 50m + Planche 1 bras 25s',exos:[
+            {num:1,name:'Double KB Swing → Jeté dbl.',tag:'BIL',uni:false,tool:'2 KB (1 par main)',
+             detail:'2 KB jetés simultanément · double rack catch · charge max technique · critère avancé · RPE 9',
+             alt:null,sets:'4',vol:'5 reps',int:'Qualité max',intD:'Chaque rep explosive',rest:'2:00'},
+            {num:2,name:'Suitcase Carry (50m)',tag:'UNI',uni:true,tool:'KB, Haltère ou Barre trap (peak)',
+             detail:'Règle ×1.5 : charge tenue 75m propre → utiliser pour 50m · noter charge max clean par côté',
+             alt:null,sets:'3',vol:'50m/côté',int:'Durée ×1.5',intD:'Charge tenue 1.5× la distance cible',rest:'1:30'},
+            {num:3,name:'Planche 1 bras (25s)',tag:'CORE',uni:true,tool:'Aucun matériel',
+             detail:'Progression vers 30s · règle ×1.5 : tenir 38s → travailler les 25s · noter écart D/G',
+             alt:null,sets:'3',vol:'25s/côté',int:'Durée ×1.5',intD:'Variante tenue si tu peux tenir 1.5× le temps cible',rest:'1:30'},
+          ]},
+        ]
+      },
+      {
+        num:'11', title:'Semaine 11 — Affûtage', sub:'Charges max · volume réduit · préparer les tests S12',
+        seances:[
+          {id:'11-A',name:'Séance 11-A',tag:'test',sub:'Escalier 4 min 30s 24 kg + Squat Bulgare tech + Ab Wheel debout 10',exos:[
+            {num:1,name:'Escalier KB 24 kg (critère)',tag:'BIL',uni:true,tool:'KB 24 kg',
+             detail:'Test pré-final : 4 min 30 / côté · charge critère (24 kg) · noter durée exacte D et G · RPE 8–9',
+             alt:null,sets:'3',vol:'4 min 30s/côté',int:'RPE 8–9',intD:'Dernière série peut toucher l\'échec technique',rest:'2:00'},
+            {num:2,name:'Squat Bulgare (technique)',tag:'UNI',uni:true,tool:'KB, Haltères ou Barre',
+             detail:'Charge modérée · technique parfaite · 3s descente · préserver les articulations · RPE 7',
+             alt:null,sets:'3',vol:'8/côté',int:'RPE 7',intD:'3 reps en réserve · focus technique',rest:'1:15'},
+            {num:3,name:'Ab Wheel debout (10 reps)',tag:'CORE',uni:false,tool:'Ab Wheel',
+             detail:'Objectif : 10 reps propres debout · si pas encore prêt : 10 reps genoux full range · RPE 8',
+             alt:null,sets:'3',vol:'8–10 reps',int:'RPE 8',intD:'1–2 reps en réserve',rest:'2:00'},
+          ]},
+          {id:'11-B',name:'Séance 11-B',tag:'test',sub:'Double Swing 5×15 + Press+Row lourd + Planche 1 bras 30s',exos:[
+            {num:1,name:'Double KB Swing (5×15)',tag:'BIL',uni:false,tool:'2 KB 16 kg',
+             detail:'CRITÈRE Phase 2 · 5×15 · noter la charge de S1 à S11 · RPE 8',
+             alt:null,sets:'5',vol:'15 reps',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:30'},
+            {num:2,name:'Press + Row (force-end.)',tag:'UNI',uni:true,tool:'KB ou Haltère',
+             detail:'5 reps lourd Press + 5 reps lourd Row même côté · noter 5RM actuels · RPE 9',
+             alt:null,sets:'3',vol:'5+5/côté',int:'RPE 9',intD:'1 rep en réserve max · effort maximal',rest:'1:30'},
+            {num:3,name:'Planche 1 bras (30s)',tag:'CORE',uni:true,tool:'Aucun matériel',
+             detail:'Test officieux : tenir 30s / côté · règle ×1.5 : 45s possible → critère core validé',
+             alt:null,sets:'2',vol:'30s/côté',int:'Durée ×1.5',intD:'Variante tenue si tu peux tenir 1.5× le temps cible',rest:'1:30'},
+          ]},
+        ]
+      },
+      {
+        num:'12', title:'Semaine 12 — Tests Officiels', sub:'Évaluation complète · décision passage Phase 2',
+        seances:[
+          {id:'12-J1',name:'Jour 1 — KB + Grip + Cardio',tag:'test',sub:'Tests officiels — 3 jours espacés',exos:[
+            {num:1,name:'Escalier KB · CRITÈRE FINAL',tag:'BIL',uni:true,tool:'KB 24 kg',
+             detail:'4 min / côté · technique propre jusqu\'au bout · noter temps exact D et G',
+             alt:null,sets:'1',vol:'4 min/côté',int:'Max propre',intD:'CRITÈRE OFFICIEL',rest:'3:00'},
+            {num:2,name:'KB Swing 1 bras',tag:'BIL',uni:true,tool:'KB charge habituelle',
+             detail:'3×10/côté · dos plat · explosion hanches · noter écart D/G',
+             alt:null,sets:'3',vol:'10/côté',int:'RPE 8',intD:'1–2 reps en réserve',rest:'1:30'},
+            {num:3,name:'Double KB Swing · CRITÈRE',tag:'BIL',uni:false,tool:'2 KB 16 kg',
+             detail:'5×15 reps · explosif · RPE 8 · noter si toutes les séries tiennent',
+             alt:null,sets:'5',vol:'15 reps',int:'RPE 8',intD:'CRITÈRE OFFICIEL',rest:'1:30'},
+          ]},
+          {id:'12-J2',name:'Jour 2 — Core',tag:'test',sub:'Tests core officiels — après 1 jour de repos',exos:[
+            {num:1,name:'Ab Wheel debout · CRITÈRE',tag:'CORE',uni:false,tool:'Ab Wheel',
+             detail:'3×8 reps propres debout · amplitude max · retour 5s · lombaires silencieuses',
+             alt:null,sets:'3',vol:'8 reps',int:'Max propre',intD:'CRITÈRE OFFICIEL',rest:'2:00'},
+            {num:2,name:'RKC Plank · CRITÈRE 45s',tag:'CORE',uni:false,tool:'Aucun matériel',
+             detail:'Tenir 45s continues · contracter TOUT · noter le temps réel',
+             alt:null,sets:'1',vol:'45s',int:'Max propre',intD:'CRITÈRE OFFICIEL',rest:'2:00'},
+            {num:3,name:'Planche 1 bras · CRITÈRE',tag:'CORE',uni:true,tool:'Aucun matériel',
+             detail:'Temps max D et G · objectif 20s / côté · écart D/G < 5s',
+             alt:null,sets:'2',vol:'Max/côté',int:'Max propre',intD:'CRITÈRE OFFICIEL — noter écart D/G',rest:'2:00'},
+          ]},
+          {id:'12-J3',name:'Jour 3 — Fonctionnel',tag:'test',sub:'Tests fonctionnels officiels',exos:[
+            {num:1,name:'Jeté épaule 1 bras · CRITÈRE',tag:'BIL',uni:true,tool:'KB',
+             detail:'3×8/côté · réception stable · coude dedans · noter écart D/G',
+             alt:null,sets:'3',vol:'8/côté',int:'Max propre',intD:'CRITÈRE OFFICIEL',rest:'2:00'},
+            {num:2,name:'Suitcase Carry · CRITÈRE',tag:'UNI',uni:true,tool:'KB 24 kg',
+             detail:'50m / côté · tronc neutre strict · noter charge et qualité par côté · écart D/G < 10%',
+             alt:null,sets:'1',vol:'50m/côté',int:'Max propre',intD:'CRITÈRE OFFICIEL',rest:'3:00'},
+            {num:3,name:'Dead Hang · CRITÈRE',tag:'CORE',uni:false,tool:'Barre de traction',
+             detail:'Temps max · objectif 30s · bras tendus · noter le temps',
+             alt:null,sets:'1',vol:'Max',int:'Max propre',intD:'CRITÈRE OFFICIEL',rest:'—'},
+          ]},
+        ]
+      },
+    ]
+  }
+];
+
+const CRITERES = [
+  {text:'Escalier KB 24 kg', standard:'4 min / côté continus', uni:'Écart D/G < 15%'},
+  {text:'KB Swing 1 bras', standard:'3×10/côté · dos plat', uni:'Écart D/G < 10%'},
+  {text:'Double KB Swing 2×16 kg', standard:'5×15 reps · explosif', uni:'—'},
+  {text:'Jeté épaule 1 bras', standard:'3×8/côté · réception stable', uni:'Écart D/G < 10%'},
+  {text:'Ab Wheel genoux (full range)', standard:'3×10 · amplitude max propre', uni:'—'},
+  {text:'Ab Wheel debout', standard:'3×5 · amplitude réduite ok', uni:'—'},
+  {text:'RKC Plank', standard:'45s continues', uni:'—'},
+  {text:'Planche 1 bras', standard:'20s / côté minimum', uni:'Écart D/G < 5s'},
+  {text:'Side Planche', standard:'35s / côté', uni:'Écart D/G < 5s'},
+  {text:'Dead Hang', standard:'30s à la barre', uni:'—'},
+  {text:'Suitcase Carry', standard:'50m · KB 24 kg · tronc neutre', uni:'Écart D/G < 10%'},
+  {text:'Cardio continu', standard:'30 min sans interruption', uni:'—'},
+];
+
+const ASYM_EXOS = ['Escalier KB 1 main','KB Swing 1 bras','KB Jeté 1 bras','Split Squat','Squat Bulgare','Press 1 bras','Row 1 bras','Romanian DL 1 jambe','Suitcase Carry','Overhead Carry','Side Planche','Planche 1 bras'];
+const CHARGE_EXOS = ['Escalier KB (charge)','Swing/Jeté 1 bras','Press 1 bras D','Press 1 bras G','Row 1 bras D','Row 1 bras G','Squat Bulgare','RDL 1 jambe','Suitcase Carry'];
+const CHARGE_WEEKS = ['S1','S2','S3','S5','S6','S7','S9','S10','S11'];
+
+// ══════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════
+let currentScreen = 'home';
+let currentSeance = null;
+let blocOpen = {bloc0:true, bloc1:true, bloc2:false, bloc3:false};
+let weekOpen = {};
+let exoOpen = {};
+let asymWeek = 4;
+
+// Timer state
+let timerInterval = null;
+let timerSeconds = 0;
+let timerMax = 0;
+let timerRunning = false;
+let timerMode = 'REST';
+let floatVisible = false;
+
+// ══════════════════════════════════════════════════
+// STORAGE
+// ══════════════════════════════════════════════════
+function save(key, val) { try { localStorage.setItem('forge_'+key, JSON.stringify(val)); } catch(e){} }
+function load(key, def) { try { const v = localStorage.getItem('forge_'+key); return v ? JSON.parse(v) : def; } catch(e){ return def; } }
+
+let critereChecked = load('criteres', {});
+let asymData = load('asym', {});
+let chargeData = load('charges', {});
+let notesData = load('notes', {});
+let statWeek = load('statweek', 'S0');
+
+// ══════════════════════════════════════════════════
+// SCREENS
+// ══════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelector(`[data-screen="${id}"]`)?.classList.add('active');
+  currentScreen = id;
+
+  if (id === 'suivi') renderSuivi();
+}
+
+function backToProgramme() {
+  document.getElementById('detail').classList.remove('active');
+  document.getElementById('programme').classList.add('active');
+  currentScreen = 'programme';
+}
+
+function goToTimer() {
+  showScreen('timer');
+}
+
+// ══════════════════════════════════════════════════
+// PROGRAMME RENDER
+// ══════════════════════════════════════════════════
+function renderProgramme() {
+  const container = document.getElementById('programme-content');
+  let html = '';
+
+  PROGRAMME.forEach(bloc => {
+    const isOpen = blocOpen[bloc.id];
+    html += `
+    <div class="bloc-section">
+      <div class="bloc-banner ${bloc.cls}" onclick="toggleBloc('${bloc.id}')">
+        <span class="bloc-pill">${bloc.label}</span>
+        <span class="bloc-title">${bloc.title}</span>
+        <span class="bloc-toggle ${isOpen?'open':''}">▼</span>
+      </div>
+      <div class="bloc-content ${isOpen?'':'collapsed'}" id="bloc-${bloc.id}">
+    `;
+
+    bloc.weeks.forEach(week => {
+      const wKey = `${bloc.id}-${week.num}`;
+      const wOpen = weekOpen[wKey] !== false;
+      html += `
+        <div class="week-group">
+          <div class="week-header" onclick="toggleWeek('${wKey}')">
+            <div class="week-num">${week.num}</div>
+            <div class="week-info">
+              <div class="week-title">${week.title}</div>
+              <div class="week-sub">${week.sub}</div>
+            </div>
+            <span style="color:var(--faint);font-size:14px;">${wOpen?'▾':'▸'}</span>
+          </div>
+          <div class="seance-list ${wOpen?'':'collapsed'}" id="week-${wKey}">
+      `;
+
+      week.seances.forEach(seance => {
+        const tagClass = {force:'tag-force',cardio:'tag-cardio',core:'tag-core',deload:'tag-deload',test:'tag-test'}[seance.tag]||'tag-force';
+        const tagLabel = {force:'Force',cardio:'Cardio',core:'Core',deload:'Déload',test:'TEST'}[seance.tag]||seance.tag;
+        html += `
+          <div class="seance-row" onclick="showSeance('${seance.id}')">
+            <span class="seance-id">${seance.id}</span>
+            <span class="seance-name">${seance.name}</span>
+            <span class="seance-tag ${tagClass}">${tagLabel}</span>
+          </div>
+        `;
+      });
+
+      html += `</div></div>`;
+    });
+
+    html += `</div></div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+function toggleBloc(id) {
+  blocOpen[id] = !blocOpen[id];
+  const content = document.getElementById('bloc-'+id);
+  const banner = content.previousElementSibling;
+  const toggle = banner.querySelector('.bloc-toggle');
+  content.classList.toggle('collapsed', !blocOpen[id]);
+  toggle.classList.toggle('open', blocOpen[id]);
+}
+
+function toggleWeek(key) {
+  weekOpen[key] = weekOpen[key] === false ? true : false;
+  const el = document.getElementById('week-'+key);
+  const header = el.previousElementSibling;
+  const arrow = header.querySelector('span:last-child');
+  el.classList.toggle('collapsed', weekOpen[key] === false);
+  arrow.textContent = weekOpen[key] === false ? '▸' : '▾';
+}
+
+// ══════════════════════════════════════════════════
+// SÉANCE DETAIL
+// ══════════════════════════════════════════════════
+function showSeance(seanceId) {
+  let seance = null;
+  PROGRAMME.forEach(b => b.weeks.forEach(w => w.seances.forEach(s => { if(s.id===seanceId) seance=s; })));
+  if (!seance) return;
+
+  currentSeance = seance;
+  document.getElementById('detail-id').textContent = `SÉANCE ${seance.id}`;
+  document.getElementById('detail-title').textContent = seance.name;
+  document.getElementById('detail-sub').textContent = seance.sub;
+
+  const savedNote = notesData[seanceId] || '';
+
+  let html = '<div class="exo-list">';
+
+  seance.exos.forEach((exo, i) => {
+    const eKey = `${seanceId}-${i}`;
+    const isOpen = exoOpen[eKey] !== false;
+    const tagClass = {BIL:'tag-BIL',UNI:'tag-UNI',CORE:'tag-CORE'}[exo.tag]||'tag-BIL';
+
+    html += `
+      <div class="exo-card">
+        <div class="exo-card-header" onclick="toggleExo('${eKey}')">
+          <div class="exo-num">${exo.num}</div>
+          <div class="exo-main">
+            <div class="exo-name">${exo.name}</div>
+            <div class="exo-tool">${exo.tool}</div>
+            ${exo.uni ? '<div class="exo-uni">→ par côté</div>' : ''}
+          </div>
+          <div class="exo-tags">
+            <span class="exo-type-tag ${tagClass}">${exo.tag}</span>
+          </div>
+        </div>
+        <div class="exo-detail ${isOpen?'':'collapsed'}" id="exo-${eKey}">
+          <div class="exo-detail-text">${exo.detail}</div>
+          ${exo.alt ? `<div class="exo-alt">Alt: ${exo.alt}</div>` : ''}
+          <div class="exo-metrics">
+            <div class="metric-box">
+              <span class="metric-val">${exo.sets}</span>
+              <div class="metric-label">Séries</div>
+            </div>
+            <div class="metric-box">
+              <span class="metric-val">${exo.vol.length > 8 ? exo.vol : exo.vol}</span>
+              <div class="metric-label">Volume</div>
+            </div>
+            <div class="metric-box">
+              <span class="metric-val">${exo.rest}</span>
+              <div class="metric-label">Repos</div>
+            </div>
+          </div>
+          <div class="intensity-row">
+            <div class="intensity-label">${exo.int}</div>
+            <div class="intensity-detail">${exo.intD}</div>
+          </div>
+          <button class="timer-btn" onclick="startRestTimer('${exo.rest}')">
+            ⏱ Timer repos ${exo.rest}
+          </button>
+        </div>
+      </div>
+    `;
+  });
+
+  html += '</div>';
+
+  html += `
+    <div class="grain-sel-card">
+      <div class="grain-sel-title">Grain de sel</div>
+      <div class="grain-sel-text">Après les 3 exercices (35–45 min) : KB complex au feeling · shadow box · stretching · rien si le corps le demande.</div>
+    </div>
+    <div class="notes-section">
+      <span class="notes-label">Notes de séance</span>
+      <textarea class="notes-area" id="notes-${seanceId}" placeholder="Charges utilisées, observations, RPE ressenti..." onchange="saveNote('${seanceId}')">${savedNote}</textarea>
+    </div>
+    <div style="height:20px;"></div>
+  `;
+
+  document.getElementById('detail-content').innerHTML = html;
+
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('detail').classList.add('active');
+  currentScreen = 'detail';
+  window.scrollTo(0,0);
+}
+
+function toggleExo(key) {
+  exoOpen[key] = exoOpen[key] === false ? true : false;
+  const el = document.getElementById('exo-'+key);
+  el.classList.toggle('collapsed', exoOpen[key] === false);
+}
+
+function saveNote(id) {
+  const el = document.getElementById('notes-'+id);
+  if (el) { notesData[id] = el.value; save('notes', notesData); }
+}
+
+// ══════════════════════════════════════════════════
+// PHASE 2 / 3 SUMMARY
+// ══════════════════════════════════════════════════
+function showPhase2() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('detail').classList.add('active');
+  document.getElementById('detail-id').textContent = 'PHASE 2';
+  document.getElementById('detail-title').textContent = 'Force Relative';
+  document.getElementById('detail-sub').textContent = 'Traction lestée · Squat barre · Deadlift · TGU · 8–16 semaines';
+
+  document.getElementById('detail-content').innerHTML = `
+    <div class="info-box blue" style="margin:16px;">
+      <div class="info-box-title">Condition de démarrage</div>
+      <ul>
+        <li>TOUS les critères Phase 1 validés en semaine 12</li>
+        <li>Démarrer sans forcer après 1 semaine de transition</li>
+      </ul>
+    </div>
+    <div style="margin:16px;">
+      <div class="suivi-section-title" style="margin-bottom:12px;">Exercices principaux</div>
+      ${[['T','Traction lestée','BW → +5 → +10 → +20 kg · 5×5 · RPE 8','+20 kg × 5 reps propres'],
+         ['T','Traction 1 bras (prépa)','Archer pull-up → traction assistée 1 bras','5 reps 1 bras / côté'],
+         ['P','Pompe / Dips lestés','BW → +10 → +20 kg · 5×5 · RPE 8','+20 kg × 5 reps'],
+         ['L','Squat front rack → barre','KB goblet → double KB → barre front','Squat barre 1.25× BW × 5'],
+         ['L','Deadlift barre','Charge progressive · 3×5 · RPE 8','DL 1.75× BW × 3 reps'],
+         ['C','Escalier KB long','5+ min / côté · charge progressive','5 min / côté à 32 kg'],
+         ['M','Turkish Get-Up (TGU)','KB léger → KB 24 kg · 3 reps / côté','TGU 24 kg · technique propre'],
+        ].map(([cat,name,prog,obj]) => `
+        <div style="border:1px solid var(--line);border-radius:2px;padding:12px;margin-bottom:8px;background:var(--bg3);">
+          <div style="display:flex;align-items:flex-start;gap:10px;">
+            <span style="font-family:var(--font-display);font-weight:900;font-size:20px;color:${cat==='T'?'#6a9fd8':cat==='P'?'var(--orange)':cat==='L'?'#5db882':'#b888e8'};min-width:20px;">${cat}</span>
+            <div>
+              <div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--white);text-transform:uppercase;">${name}</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:4px;">${prog}</div>
+              <div style="font-size:12px;color:var(--orange);margin-top:3px;font-style:italic;">${obj}</div>
+            </div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="info-box green" style="margin:16px;">
+      <div class="info-box-title">Critères de passage Phase 2 → Phase 3</div>
+      <ul>
+        <li>Traction lestée · +15 kg × 5 reps propres</li>
+        <li>Pompe lestée · +15 kg × 5 reps propres</li>
+        <li>Squat barre · 1.25× BW × 5 reps</li>
+        <li>Deadlift barre · 1.75× BW × 3 reps</li>
+        <li>Escalier KB 24 kg · 5 min / côté · D/G &lt; 10%</li>
+        <li>Double KB Farmer Walk · 2 × 24 kg · 50 m</li>
+        <li>Ab Wheel debout · 3 × 10 reps propres</li>
+        <li>Planche 1 bras · 30 s / côté · D/G &lt; 5s</li>
+        <li>Turkish Get-Up · KB 24 kg · technique propre</li>
+        <li>Cardio continu · 45 min sans interruption</li>
+      </ul>
+    </div>
+    <div style="height:20px;"></div>
+  `;
+  currentScreen = 'detail';
+  window.scrollTo(0,0);
+}
+
+function showPhase3() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('detail').classList.add('active');
+  document.getElementById('detail-id').textContent = 'PHASE 3';
+  document.getElementById('detail-title').textContent = 'Spécifique';
+  document.getElementById('detail-sub').textContent = 'Boxe · Port de charge · Cardio long · Programme continu';
+
+  document.getElementById('detail-content').innerHTML = `
+    <div class="info-box green" style="margin:16px;">
+      <div class="info-box-title">Phase continue — sans fin définie</div>
+      <ul>
+        <li>1–2 séances de maintien Phase 2 / semaine (force préservée)</li>
+        <li>3–5 séances spécifiques selon objectif du moment</li>
+      </ul>
+    </div>
+    <div style="margin:16px;">
+      <div class="suivi-section-title" style="margin-bottom:12px;">Pilier 1 — Boxe</div>
+      ${[['Shadow box technique','Jab-cross-crochet · 3×3 min rounds','Swing → même chaîne hip hinge → rotation → bras'],
+         ['Sac lourd (puissance)','Frappe explosive · 6–8 coups · accent hanches','Transfert direct du pattern KB'],
+         ['KB Swing → frappe','Swing explosif puis shadow box','Le pattern s\'encode dans la frappe'],
+         ['Corde à sauter','Échauffement · cardio · coordination','Cardio construit sur l\'escalier P1'],
+        ].map(([name,desc,link]) => `
+        <div style="border:1px solid rgba(30,112,72,0.3);border-radius:2px;padding:12px;margin-bottom:8px;background:rgba(30,112,72,0.05);">
+          <div style="font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--white);text-transform:uppercase;">${name}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px;">${desc}</div>
+          <div style="font-size:11px;color:#5db882;margin-top:3px;font-style:italic;">${link}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div style="margin:16px;">
+      <div class="suivi-section-title" style="margin-bottom:12px;">Pilier 2 — Port de charge</div>
+      ${[['Ruck March','Sac 15 kg · 5 km → 20 kg · 10 km → 30 kg · 15 km'],
+         ['Farmer Walk lourd','2 × 28 kg · 100 m → 2 × 36 kg · 200 m'],
+         ['Suitcase Carry lourd','32 kg / côté · 60 m → 40 kg · 100 m'],
+         ['Stair Carry','Sac 20 kg · escalier · 8 min → 10 min · 25 kg'],
+        ].map(([name,prog]) => `
+        <div style="border:1px solid var(--line);border-radius:2px;padding:12px;margin-bottom:8px;background:var(--bg3);">
+          <div style="font-family:var(--font-display);font-size:15px;font-weight:700;color:var(--white);text-transform:uppercase;">${name}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px;">${prog}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="info-box amber" style="margin:16px;">
+      <div class="info-box-title">Jalons Phase 3</div>
+      <ul>
+        <li>Boxe : 5 rounds × 3 min · gardes hautes · souffle maîtrisé</li>
+        <li>Ruck : 10 km · sac 20 kg · &lt; 2h · terrain varié</li>
+        <li>Escalier KB : 10 min continus à 28 kg / côté</li>
+        <li>Cardio : 60 min Zone 2 · RPE ≤ 5.5 tout au long</li>
+        <li>Force maintenue : traction +15 kg × 5 · squat 1.25 BW</li>
+      </ul>
+    </div>
+    <div style="height:20px;"></div>
+  `;
+  currentScreen = 'detail';
+  window.scrollTo(0,0);
+}
+
+// ══════════════════════════════════════════════════
+// TIMER
+// ══════════════════════════════════════════════════
+function updateTimerDisplay() {
+  const m = Math.floor(timerSeconds / 60);
+  const s = timerSeconds % 60;
+  const str = `${m}:${s.toString().padStart(2,'0')}`;
+  document.getElementById('timer-display').textContent = str;
+
+  if (floatVisible) document.getElementById('float-time').textContent = str;
+
+  // Ring progress
+  const pct = timerMax > 0 ? 1 - (timerSeconds / timerMax) : 0;
+  const circ = 628;
+  document.getElementById('ring-progress').style.strokeDashoffset = circ - (pct * circ);
+
+  // Color states
+  const disp = document.getElementById('timer-display');
+  const ring = document.getElementById('ring-progress');
+  if (!timerRunning && timerSeconds === 0) {
+    disp.className = 'timer-display finished';
+    ring.style.stroke = 'var(--green)';
+    if (timerMax > 0) navigator.vibrate?.([200,100,200]);
+  } else if (timerRunning && timerSeconds <= 10 && timerSeconds > 0) {
+    disp.className = 'timer-display warning';
+    ring.style.stroke = '#e0b040';
+  } else if (timerRunning) {
+    disp.className = 'timer-display running';
+    ring.style.stroke = 'var(--orange)';
+  } else {
+    disp.className = 'timer-display';
+    ring.style.stroke = 'var(--orange)';
+  }
+}
+
+function timerTick() {
+  if (timerSeconds > 0) {
+    timerSeconds--;
+    updateTimerDisplay();
+  } else {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    document.getElementById('btn-start-pause').textContent = 'START';
+    updateTimerDisplay();
+  }
+}
+
+function timerStartPause() {
+  if (timerRunning) {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    document.getElementById('btn-start-pause').textContent = 'REPRISE';
+    if (currentScreen !== 'timer') showFloatTimer();
+  } else {
+    if (timerSeconds === 0 && timerMax > 0) timerSeconds = timerMax;
+    if (timerSeconds === 0) return;
+    timerRunning = true;
+    timerInterval = setInterval(timerTick, 1000);
+    document.getElementById('btn-start-pause').textContent = 'PAUSE';
+    hideFloatTimer();
+  }
+}
+
+function timerReset() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerSeconds = timerMax;
+  document.getElementById('btn-start-pause').textContent = 'START';
+  updateTimerDisplay();
+  hideFloatTimer();
+}
+
+function setPreset(seconds, mode) {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerSeconds = seconds;
+  timerMax = seconds;
+  timerMode = mode;
+  const labels = {REST:'REPOS',ESCALIER:'ESCALIER',CORE:'CORE / PLANCHE'};
+  document.getElementById('timer-mode-label').textContent = labels[mode]||mode;
+  const m = Math.floor(seconds/60), s = seconds%60;
+  document.getElementById('timer-target').textContent = `Cible : ${m}:${s.toString().padStart(2,'0')}`;
+  document.getElementById('btn-start-pause').textContent = 'START';
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  updateTimerDisplay();
+}
+
+function setCustomTimer() {
+  const val = document.getElementById('custom-input').value.replace(':','');
+  let secs = 0;
+  if (val.length <= 2) secs = parseInt(val) * 60;
+  else if (val.length === 3) secs = parseInt(val[0]) * 60 + parseInt(val.slice(1));
+  else secs = parseInt(val.slice(0,2)) * 60 + parseInt(val.slice(2));
+  if (!isNaN(secs) && secs > 0) setPreset(secs, 'CUSTOM');
+}
+
+function startRestTimer(restStr) {
+  // Parse "1:30" or "2:00"
+  const parts = restStr.split(':');
+  let secs = 0;
+  if (parts.length === 2) secs = parseInt(parts[0])*60 + parseInt(parts[1]);
+  else secs = parseInt(restStr);
+  if (secs > 0) {
+    setPreset(secs, 'REST');
+    // Auto-start
+    timerRunning = true;
+    timerInterval = setInterval(timerTick, 1000);
+    document.getElementById('btn-start-pause').textContent = 'PAUSE';
+    // If not on timer screen, show float
+    if (currentScreen !== 'timer') showFloatTimer();
+  }
+}
+
+function showFloatTimer() {
+  floatVisible = true;
+  document.getElementById('floating-timer').style.display = 'block';
+}
+
+function hideFloatTimer() {
+  floatVisible = false;
+  document.getElementById('floating-timer').style.display = 'none';
+}
+
+// ══════════════════════════════════════════════════
+// SUIVI
+// ══════════════════════════════════════════════════
+function renderSuivi() {
+  renderCriteres();
+  renderAsymTable();
+  renderChargeTable();
+  updateStats();
+}
+
+function renderCriteres() {
+  const list = document.getElementById('criteres-list');
+  let html = '';
+  CRITERES.forEach((c, i) => {
+    const checked = critereChecked[i];
+    html += `
+      <div class="critere-item ${checked?'checked':''}" onclick="toggleCritere(${i})">
+        <div class="critere-check">
+          <span class="critere-checkmark">✓</span>
+        </div>
+        <div class="critere-text">
+          <div>${c.text}</div>
+          <div class="critere-standard">${c.standard}</div>
+          ${c.uni !== '—' ? `<div style="font-size:11px;color:var(--faint);margin-top:2px;">${c.uni}</div>` : ''}
+        </div>
+      </div>
+    `;
+  });
+  list.innerHTML = html;
+  updateCritereProgress();
+}
+
+function toggleCritere(i) {
+  critereChecked[i] = !critereChecked[i];
+  save('criteres', critereChecked);
+  renderCriteres();
+  updateStats();
+}
+
+function updateCritereProgress() {
+  const checked = Object.values(critereChecked).filter(Boolean).length;
+  const total = CRITERES.length;
+  const pct = (checked/total)*100;
+  document.getElementById('critere-progress').style.width = pct+'%';
+  document.getElementById('critere-progress-label').textContent = `${checked} / ${total} validés`;
+}
+
+function showAsymWeek(w) {
+  asymWeek = w;
+  document.querySelectorAll('[id^="asym-tab-"]').forEach(b => b.classList.remove('active'));
+  document.getElementById('asym-tab-'+w).classList.add('active');
+  renderAsymTable();
+}
+
+function renderAsymTable() {
+  const table = document.getElementById('asym-table');
+  let html = `<tr><th>Exercice</th><th>D</th><th>G</th><th>Écart</th></tr>`;
+
+  ASYM_EXOS.forEach((exo, i) => {
+    const key = `${asymWeek}-${i}`;
+    const dVal = asymData[key+'-D'] || '';
+    const gVal = asymData[key+'-G'] || '';
+    let pctHtml = '<span class="asym-pct diff-neu">—</span>';
+    if (dVal && gVal) {
+      const d = parseFloat(dVal), g = parseFloat(gVal);
+      const max = Math.max(d,g), min = Math.min(d,g);
+      if (max > 0) {
+        const pct = ((max-min)/max*100).toFixed(0);
+        const cls = pct < 5 ? 'asym-ok' : pct < 10 ? 'asym-warn' : 'asym-bad';
+        pctHtml = `<span class="asym-pct ${cls}">${pct}%</span>`;
+      }
+    }
+    html += `
+      <tr>
+        <td>${exo}</td>
+        <td><input class="asym-input" value="${dVal}" oninput="saveAsym(${asymWeek},${i},'D',this.value)" placeholder="—" inputmode="decimal"></td>
+        <td><input class="asym-input" value="${gVal}" oninput="saveAsym(${asymWeek},${i},'G',this.value)" placeholder="—" inputmode="decimal"></td>
+        <td>${pctHtml}</td>
+      </tr>
+    `;
+  });
+  table.innerHTML = html;
+}
+
+function saveAsym(week, i, side, val) {
+  const key = `${week}-${i}-${side}`;
+  asymData[key] = val;
+  save('asym', asymData);
+  renderAsymTable();
+}
+
+function renderChargeTable() {
+  const table = document.getElementById('charge-table');
+  let html = `<tr><th>Exercice</th>${CHARGE_WEEKS.map(w=>`<th>${w}</th>`).join('')}</tr>`;
+
+  CHARGE_EXOS.forEach((exo, i) => {
+    html += `<tr><td>${exo}</td>`;
+    CHARGE_WEEKS.forEach((w, j) => {
+      const key = `${i}-${j}`;
+      const val = chargeData[key] || '';
+      html += `<td><input class="charge-input" value="${val}" oninput="saveCharge(${i},${j},this.value)" placeholder="—" inputmode="decimal"></td>`;
+    });
+    html += `</tr>`;
+  });
+  table.innerHTML = html;
+}
+
+function saveCharge(i, j, val) {
+  const key = `${i}-${j}`;
+  chargeData[key] = val;
+  save('charges', chargeData);
+}
+
+function updateStats() {
+  const checked = Object.values(critereChecked).filter(Boolean).length;
+  document.getElementById('stat-criteres').textContent = `${checked}/12`;
+  document.getElementById('stat-week').textContent = statWeek;
+}
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  renderProgramme();
+  updateStats();
+});
+
+// Prevent double-tap zoom on iOS
+let lastTouchEnd = 0;
+document.addEventListener('touchend', e => {
+  const now = Date.now();
+  if (now - lastTouchEnd <= 300) e.preventDefault();
+  lastTouchEnd = now;
+}, false);
+</script>
+</body>
+</html>
