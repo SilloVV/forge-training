@@ -1283,6 +1283,143 @@ body { -webkit-overflow-scrolling: touch; }
 
 .screen.active { animation: fadeIn 0.2s ease; }
 
+/* ── CALIBRAGE SCREEN ── */
+.calib-exo-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+.calib-exo-row:last-child { border-bottom: none; }
+
+.calib-exo-name {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.calib-inputs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.calib-input {
+  width: 58px;
+  background: var(--bg3);
+  border: 1px solid var(--line);
+  border-radius: 1px;
+  padding: 7px 6px;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  text-align: center;
+}
+.calib-input:focus { outline: none; border-color: var(--orange-dim); }
+.calib-input::placeholder { color: var(--faint); font-size: 11px; }
+
+.calib-sep { color: var(--faint); font-size: 11px; }
+
+.rpe-select {
+  background: var(--bg3);
+  border: 1px solid var(--line);
+  border-radius: 1px;
+  padding: 7px 4px;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  width: 54px;
+  text-align: center;
+}
+.rpe-select:focus { outline: none; border-color: var(--orange-dim); }
+
+/* Result table */
+.result-bloc {
+  margin-bottom: 16px;
+}
+
+.result-bloc-title {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 8px;
+}
+
+.result-bloc-title.b0 { color: #e0b040; }
+.result-bloc-title.b1 { color: var(--orange); }
+.result-bloc-title.b2 { color: #6a9fd8; }
+.result-bloc-title.b3 { color: #5db882; }
+
+.result-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(42,42,42,0.5);
+}
+.result-row:last-child { border-bottom: none; }
+
+.result-exo { font-size: 12px; color: var(--muted); flex: 1; }
+
+.result-charge {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--orange);
+  min-width: 60px;
+  text-align: right;
+}
+
+.result-detail {
+  font-size: 10px;
+  color: var(--faint);
+  margin-left: 8px;
+  min-width: 50px;
+  text-align: right;
+}
+
+/* Charge badge in seance detail */
+.charge-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(200,80,8,0.15);
+  border: 1px solid rgba(200,80,8,0.4);
+  border-radius: 2px;
+  padding: 6px 10px;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.charge-badge-label {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  flex: 1;
+}
+
+.charge-badge-val {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--orange);
+}
+
+.charge-badge-unit {
+  font-size: 11px;
+  color: var(--muted);
+}
+
 /* ── RESPONSIVE tweaks ── */
 @media (max-width: 360px) {
   .exo-metrics { grid-template-columns: repeat(3, 1fr); }
@@ -1308,6 +1445,9 @@ body { -webkit-overflow-scrolling: touch; }
   </button>
   <button class="nav-btn" onclick="showScreen('suivi')" data-screen="suivi">
     <span class="nav-icon">📊</span>SUIVI
+  </button>
+  <button class="nav-btn" onclick="showScreen('calibrage')" data-screen="calibrage">
+    <span class="nav-icon">⚙️</span>CHARGES
   </button>
 </nav>
 
@@ -1534,6 +1674,50 @@ body { -webkit-overflow-scrolling: touch; }
       <table class="charge-table" id="charge-table"></table>
     </div>
   </div>
+</div>
+
+<!-- ═══════════════════════════ CALIBRAGE ═══════════════════════════ -->
+<div id="calibrage" class="screen">
+  <div class="screen-header">
+    <div class="screen-label">Calcul automatique</div>
+    <div class="screen-title">Charges</div>
+  </div>
+
+  <div class="info-box orange" style="margin:16px 16px 0;">
+    <div class="info-box-title">Comment ça marche</div>
+    <ul>
+      <li>Entre la charge et le RPE de ta séance de calibrage</li>
+      <li>L'app calcule la charge recommandée pour chaque bloc</li>
+      <li>Les charges apparaissent en orange dans chaque séance</li>
+      <li>Pour les carries / timed : entre la durée tenue + RPE</li>
+    </ul>
+  </div>
+
+  <!-- EXERCICES DE FORCE -->
+  <div class="suivi-section">
+    <div class="suivi-section-title">Exercices de force — Charges (kg)</div>
+    <div id="calib-force-inputs"></div>
+  </div>
+
+  <!-- EXERCICES TIMED -->
+  <div class="suivi-section">
+    <div class="suivi-section-title">Escalier KB — Durée (min:ss)</div>
+    <div id="calib-timed-inputs"></div>
+  </div>
+
+  <!-- RÉSULTATS CALCULÉS -->
+  <div class="suivi-section" id="calib-results-section" style="display:none;">
+    <div class="suivi-section-title">Charges calculées par bloc</div>
+    <div id="calib-results"></div>
+  </div>
+
+  <div style="margin:16px;">
+    <button class="timer-btn" style="font-size:16px;padding:16px;" onclick="calcCharges()">
+      ⚡ Calculer mes charges
+    </button>
+  </div>
+
+  <div style="height:20px;"></div>
 </div>
 
 <script>
@@ -2185,6 +2369,33 @@ function showSeance(seanceId) {
     const isOpen = exoOpen[eKey] !== false;
     const tagClass = {BIL:'tag-BIL',UNI:'tag-UNI',CORE:'tag-CORE'}[exo.tag]||'tag-BIL';
 
+    // Charge recommandée depuis le calibrage
+    const rec = getRecommendedCharge(exo.name, seanceId);
+    const defaultRpe = parseInt(exo.int.replace(/[^0-9]/g,'').slice(0,1)) || 8;
+    const chargeBadge = rec ? `
+      <div class="charge-badge" id="badge-${eKey}">
+        <div style="display:flex;flex-direction:column;flex:1;gap:4px;">
+          <span class="charge-badge-label">⚡ Charge recommandée</span>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
+            <span style="font-size:11px;color:var(--faint);font-family:var(--font-display);letter-spacing:0.1em;text-transform:uppercase;">RPE cible</span>
+            ${[6,7,8,9].map(r => `
+              <button onclick="updateChargeBadge('${eKey}','${exo.name}','${seanceId}',${r})"
+                id="rpebtn-${eKey}-${r}"
+                style="width:28px;height:28px;border-radius:1px;border:1px solid var(--line);
+                       background:${r===defaultRpe?'var(--orange)':'var(--bg4)'};
+                       color:${r===defaultRpe?'#fff':'var(--muted)'};
+                       font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer;">
+                ${r}
+              </button>`).join('')}
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <span class="charge-badge-val" id="badgeval-${eKey}">${getChargeForRpe(exo.name, seanceId, defaultRpe) || rec.val}</span>
+          <div class="charge-badge-unit" id="badgeunit-${eKey}">${rec.unit}</div>
+        </div>
+      </div>
+    ` : '';
+
     html += `
       <div class="exo-card">
         <div class="exo-card-header" onclick="toggleExo('${eKey}')">
@@ -2199,6 +2410,7 @@ function showSeance(seanceId) {
           </div>
         </div>
         <div class="exo-detail ${isOpen?'':'collapsed'}" id="exo-${eKey}">
+          ${chargeBadge}
           <div class="exo-detail-text">${exo.detail}</div>
           ${exo.alt ? `<div class="exo-alt">Alt: ${exo.alt}</div>` : ''}
           <div class="exo-metrics">
@@ -2625,11 +2837,308 @@ function updateStats() {
 }
 
 // ══════════════════════════════════════════════════
+// CALIBRAGE — MOTEUR DE CALCUL DE CHARGES
+// ══════════════════════════════════════════════════
+
+// Exercices de force — clé unique, nom affiché, nom court pour lookup
+const CALIB_FORCE = [
+  {id:'press',   name:'Press 1 bras',         unit:'kg'},
+  {id:'row',     name:'Row 1 bras',            unit:'kg'},
+  {id:'squat',   name:'Split Squat / Bulgare', unit:'kg'},
+  {id:'rdl',     name:'Romanian DL 1 jambe',   unit:'kg'},
+  {id:'swing',   name:'KB Swing 1 bras',       unit:'kg'},
+  {id:'jete',    name:'Swing → Jeté 1 bras',   unit:'kg'},
+  {id:'farmer',  name:'Farmer Walk',           unit:'kg'},
+  {id:'suitcase',name:'Suitcase Carry',        unit:'kg'},
+  {id:'overhead',name:'Overhead Carry',        unit:'kg'},
+];
+
+const CALIB_TIMED = [
+  {id:'escalier', name:'Escalier KB 1 main', unit:'min:ss'},
+];
+
+// RPE → facteur multiplicateur pour estimer la charge max théorique
+// Logique : à RPE X, tu avais N reps en réserve, donc le max est charge / (1 - N*0.033)
+const RPE_TO_MAX_FACTOR = {
+  6: 1.67,   // 4-5 reps en réserve
+  7: 1.43,   // 2-3 reps en réserve
+  8: 1.25,   // 1-2 reps en réserve
+  9: 1.11,   // 0-1 rep en réserve
+};
+
+// % du max par bloc/semaine
+const BLOC_PCT = {
+  S0:  0.60,
+  B1:  0.72,
+  B2:  0.82,
+  B3:  0.88,
+};
+
+// Arrondir à l'incrément KB/haltère le plus proche (2 kg)
+function roundToKB(val) {
+  return Math.round(val / 2) * 2;
+}
+
+// Durée (secondes) → string "M:SS"
+function secsToStr(s) {
+  const m = Math.floor(s/60);
+  const ss = Math.round(s%60);
+  return `${m}:${ss.toString().padStart(2,'0')}`;
+}
+
+// Parse "M:SS" ou "MM:SS" → secondes
+function strToSecs(str) {
+  if (!str) return 0;
+  const parts = str.replace(',','.').split(':');
+  if (parts.length === 2) return parseInt(parts[0])*60 + parseInt(parts[1]);
+  return parseFloat(str)*60;
+}
+
+let calibData = load('calibData', {});
+let computedCharges = load('computedCharges', {});
+
+function renderCalibInputs() {
+  // Force inputs
+  let html = '';
+  CALIB_FORCE.forEach(exo => {
+    const charge = calibData[exo.id+'_charge'] || '';
+    const rpe    = calibData[exo.id+'_rpe'] || '8';
+    html += `
+      <div class="calib-exo-row">
+        <div class="calib-exo-name">${exo.name}</div>
+        <div class="calib-inputs">
+          <input class="calib-input" type="number" inputmode="decimal" min="0" step="2"
+            placeholder="kg" value="${charge}"
+            oninput="saveCalibField('${exo.id}_charge', this.value)">
+          <span class="calib-sep">RPE</span>
+          <select class="rpe-select" onchange="saveCalibField('${exo.id}_rpe', this.value)">
+            ${[6,7,8,9].map(r => `<option value="${r}" ${rpe==r?'selected':''}>${r}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+    `;
+  });
+  document.getElementById('calib-force-inputs').innerHTML = html;
+
+  // Timed inputs
+  let htmlT = '';
+  CALIB_TIMED.forEach(exo => {
+    const duree = calibData[exo.id+'_duree'] || '';
+    const rpe   = calibData[exo.id+'_rpe'] || '7';
+    htmlT += `
+      <div class="calib-exo-row">
+        <div class="calib-exo-name">${exo.name}<br><span style="font-size:11px;color:var(--faint);">Durée tenue au calibrage / côté</span></div>
+        <div class="calib-inputs">
+          <input class="calib-input" type="text" inputmode="decimal"
+            placeholder="M:SS" value="${duree}" style="width:66px;"
+            oninput="saveCalibField('${exo.id}_duree', this.value)">
+          <span class="calib-sep">RPE</span>
+          <select class="rpe-select" onchange="saveCalibField('${exo.id}_rpe', this.value)">
+            ${[6,7,8,9].map(r => `<option value="${r}" ${rpe==r?'selected':''}>${r}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+    `;
+  });
+  document.getElementById('calib-timed-inputs').innerHTML = htmlT;
+}
+
+function saveCalibField(key, val) {
+  calibData[key] = val;
+  save('calibData', calibData);
+}
+
+function calcCharges() {
+  const results = {};
+
+  // ── Force exercises ──
+  CALIB_FORCE.forEach(exo => {
+    const charge = parseFloat(calibData[exo.id+'_charge']);
+    const rpe    = parseInt(calibData[exo.id+'_rpe']) || 8;
+    if (!charge || charge <= 0) return;
+
+    const factor = RPE_TO_MAX_FACTOR[rpe] || 1.25;
+    const max    = charge * factor;
+
+    results[exo.id] = {
+      type: 'force',
+      name: exo.name,
+      max: max,
+      S0: roundToKB(max * BLOC_PCT.S0),
+      B1: roundToKB(max * BLOC_PCT.B1),
+      B2: roundToKB(max * BLOC_PCT.B2),
+      B3: roundToKB(max * BLOC_PCT.B3),
+    };
+  });
+
+  // ── Timed exercises (escalier) ──
+  CALIB_TIMED.forEach(exo => {
+    const dureeStr = calibData[exo.id+'_duree'];
+    const rpe      = parseInt(calibData[exo.id+'_rpe']) || 7;
+    const secs     = strToSecs(dureeStr);
+    if (!secs || secs <= 0) return;
+
+    // Durée max estimée = durée calibrage × facteur RPE
+    const factor = RPE_TO_MAX_FACTOR[rpe] || 1.43;
+    const maxSecs = secs * factor;
+
+    // Durée cible par bloc = maxSecs × % bloc, arrondie à 15s
+    const round15 = s => Math.round(s/15)*15;
+
+    results[exo.id] = {
+      type: 'timed',
+      name: exo.name,
+      maxSecs,
+      S0: secsToStr(round15(maxSecs * BLOC_PCT.S0)),
+      B1: secsToStr(round15(maxSecs * BLOC_PCT.B1)),
+      B2: secsToStr(round15(maxSecs * BLOC_PCT.B2)),
+      B3: secsToStr(round15(maxSecs * BLOC_PCT.B3)),
+    };
+  });
+
+  computedCharges = results;
+  save('computedCharges', results);
+  renderCalibResults(results);
+}
+
+function renderCalibResults(results) {
+  if (!Object.keys(results).length) return;
+
+  const blocs = [
+    {key:'S0', label:'S0 — Semaine 0 (70%)', cls:'b0'},
+    {key:'B1', label:'Bloc 1 — S1–S3 (72%)',  cls:'b1'},
+    {key:'B2', label:'Bloc 2 — S5–S7 (82%)',  cls:'b2'},
+    {key:'B3', label:'Bloc 3 — S9–S11 (88%)', cls:'b3'},
+  ];
+
+  let html = '';
+  blocs.forEach(b => {
+    html += `<div class="result-bloc">`;
+    html += `<div class="result-bloc-title ${b.cls}">${b.label}</div>`;
+    Object.values(results).forEach(r => {
+      const val = r[b.key];
+      const unit = r.type === 'timed' ? '/côté' : 'kg';
+      const detail = r.type === 'force'
+        ? `max ~${Math.round(r.max)} kg`
+        : `max ~${secsToStr(Math.round(r.maxSecs))}`;
+      html += `
+        <div class="result-row">
+          <span class="result-exo">${r.name}</span>
+          <span class="result-charge">${val}</span>
+          <span class="result-detail">${unit} · ${detail}</span>
+        </div>
+      `;
+    });
+    html += `</div>`;
+  });
+
+  document.getElementById('calib-results').innerHTML = html;
+  document.getElementById('calib-results-section').style.display = 'block';
+}
+
+// Calcule la charge pour un RPE cible donné (recalcul depuis le max estimé)
+function getChargeForRpe(exoName, seanceId, targetRpe) {
+  // Récupérer la clé calibrage
+  const name = exoName.toLowerCase();
+  let calibKey = null;
+  if (name.includes('press'))                                        calibKey = 'press';
+  else if (name.includes('row') && !name.includes('turkish'))        calibKey = 'row';
+  else if (name.includes('bulgare') || name.includes('split squat')) calibKey = 'squat';
+  else if (name.includes('rdl') || name.includes('romanian'))        calibKey = 'rdl';
+  else if (name.includes('jeté') || name.includes('jete'))           calibKey = 'jete';
+  else if (name.includes('swing') && !name.includes('double'))       calibKey = 'swing';
+  else if (name.includes('suitcase'))                                calibKey = 'suitcase';
+  else if (name.includes('overhead carry'))                          calibKey = 'overhead';
+  else if (name.includes('farmer'))                                  calibKey = 'farmer';
+  else if (name.includes('escalier'))                                calibKey = 'escalier';
+
+  if (!calibKey || !computedCharges[calibKey]) return null;
+  const r = computedCharges[calibKey];
+
+  // % cible selon RPE sélectionné
+  const rpePct = {6: 0.60, 7: 0.72, 8: 0.82, 9: 0.88};
+  const pct = rpePct[targetRpe] || 0.82;
+
+  if (r.type === 'force') {
+    return roundToKB(r.max * pct) + ' kg';
+  } else {
+    const round15 = s => Math.round(s/15)*15;
+    return secsToStr(round15(r.maxSecs * pct));
+  }
+}
+
+// Met à jour le badge en temps réel quand on clique sur un RPE
+function updateChargeBadge(eKey, exoName, seanceId, rpe) {
+  // Mettre à jour les boutons RPE
+  [6,7,8,9].forEach(r => {
+    const btn = document.getElementById(`rpebtn-${eKey}-${r}`);
+    if (!btn) return;
+    btn.style.background = r === rpe ? 'var(--orange)' : 'var(--bg4)';
+    btn.style.color = r === rpe ? '#fff' : 'var(--muted)';
+  });
+
+  // Recalculer et afficher la charge
+  const val = getChargeForRpe(exoName, seanceId, rpe);
+  const valEl = document.getElementById(`badgeval-${eKey}`);
+  if (valEl && val) {
+    valEl.textContent = val;
+    // Flash orange pour feedback visuel
+    valEl.style.color = '#fff';
+    setTimeout(() => { valEl.style.color = 'var(--orange)'; }, 150);
+  }
+}
+
+// Retourne la charge recommandée pour un exercice + un seanceId
+// Utilisé pour injecter dans les séances
+function getRecommendedCharge(exoName, seanceId) {
+  if (!computedCharges || !Object.keys(computedCharges).length) return null;
+
+  // Déterminer le bloc de la séance
+  const weekNum = parseInt(seanceId.split('-')[0]);
+  let blocKey = 'B1';
+  if (weekNum === 0)                    blocKey = 'S0';
+  else if (weekNum >= 1 && weekNum <= 3) blocKey = 'B1';
+  else if (weekNum === 4)               blocKey = 'S0'; // déload
+  else if (weekNum >= 5 && weekNum <= 7) blocKey = 'B2';
+  else if (weekNum === 8)               blocKey = 'S0'; // déload
+  else if (weekNum >= 9)                blocKey = 'B3';
+
+  // Mapper le nom de l'exercice vers une clé calibrage
+  const name = exoName.toLowerCase();
+  let calibKey = null;
+
+  if (name.includes('press'))                                       calibKey = 'press';
+  else if (name.includes('row') && !name.includes('turkish'))       calibKey = 'row';
+  else if (name.includes('bulgare') || name.includes('split squat')) calibKey = 'squat';
+  else if (name.includes('rdl') || name.includes('romanian'))       calibKey = 'rdl';
+  else if (name.includes('jeté') || name.includes('jete'))          calibKey = 'jete';
+  else if (name.includes('swing') && !name.includes('double'))      calibKey = 'swing';
+  else if (name.includes('suitcase'))                               calibKey = 'suitcase';
+  else if (name.includes('overhead carry'))                         calibKey = 'overhead';
+  else if (name.includes('farmer'))                                 calibKey = 'farmer';
+  else if (name.includes('escalier'))                               calibKey = 'escalier';
+
+  if (!calibKey || !computedCharges[calibKey]) return null;
+
+  const r = computedCharges[calibKey];
+  return {
+    val: r[blocKey],
+    unit: r.type === 'timed' ? 'min/côté' : 'kg',
+    type: r.type,
+  };
+}
+
+// ══════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
   renderProgramme();
   updateStats();
+  renderCalibInputs();
+  // Restore results if already calculated
+  if (computedCharges && Object.keys(computedCharges).length) {
+    renderCalibResults(computedCharges);
+  }
 });
 
 // Prevent double-tap zoom on iOS
